@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seed Test Data</title>
+</head>
+<body>
+  <h1>Energy Patterns Tracker - Seed Test Data</h1>
+  <button onclick="seedData()">Click to Seed Test Data</button>
+  <button onclick="clearData()">Clear All Data</button>
+  <p id="status"></p>
+
+  <script>
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function seedData() {
+      var today = new Date();
+      var testData = {};
+
+      // Helper to create empty entry
+      function createEntry(date) {
+        return {
+          date: formatDate(date),
+          energy_score: 5,
+          morning_drains: [],
+          morning_custom_drain: "",
+          morning_restorers: [],
+          morning_custom_restorer: "",
+          afternoon_drains: [],
+          afternoon_custom_drain: "",
+          afternoon_restorers: [],
+          afternoon_custom_restorer: "",
+          evening_drains: [],
+          evening_custom_drain: "",
+          evening_restorers: [],
+          evening_custom_restorer: "",
+          custom_drain: "",
+          custom_restorer: ""
+        };
+      }
+
+      // Day 1 (6 days ago): Email catch-up, Coordination tasks, energy 4
+      var day1 = new Date(today);
+      day1.setDate(today.getDate() - 6);
+      var entry1 = createEntry(day1);
+      entry1.energy_score = 4;
+      entry1.morning_drains = ["Email catch-up", "Coordination tasks"];
+      testData[formatDate(day1)] = entry1;
+
+      // Day 2 (5 days ago): Email catch-up x2, scheduling, energy 3
+      var day2 = new Date(today);
+      day2.setDate(today.getDate() - 5);
+      var entry2 = createEntry(day2);
+      entry2.energy_score = 3;
+      entry2.morning_drains = ["Email catch-up"];
+      entry2.afternoon_drains = ["Email catch-up"];
+      entry2.afternoon_custom_drain = "scheduling doctor appointments";
+      testData[formatDate(day2)] = entry2;
+
+      // Day 3 (4 days ago): Email, Coordination, planning, energy 4
+      var day3 = new Date(today);
+      day3.setDate(today.getDate() - 4);
+      var entry3 = createEntry(day3);
+      entry3.energy_score = 4;
+      entry3.morning_drains = ["Email catch-up"];
+      entry3.morning_custom_drain = "planning weekly meals";
+      entry3.afternoon_drains = ["Coordination tasks"];
+      testData[formatDate(day3)] = entry3;
+
+      // Day 4 (3 days ago): Email, Administrative tasks, energy 3
+      var day4 = new Date(today);
+      day4.setDate(today.getDate() - 3);
+      var entry4 = createEntry(day4);
+      entry4.energy_score = 3;
+      entry4.morning_drains = ["Email catch-up", "Administrative tasks"];
+      testData[formatDate(day4)] = entry4;
+
+      // Day 5 (2 days ago): Email x2, Reading, energy 4
+      var day5 = new Date(today);
+      day5.setDate(today.getDate() - 2);
+      var entry5 = createEntry(day5);
+      entry5.energy_score = 4;
+      entry5.morning_drains = ["Email catch-up"];
+      entry5.afternoon_drains = ["Email catch-up"];
+      entry5.evening_restorers = ["Reading"];
+      testData[formatDate(day5)] = entry5;
+
+      // Day 6 (1 day ago): Morning coffee, Reading, energy 7
+      var day6 = new Date(today);
+      day6.setDate(today.getDate() - 1);
+      var entry6 = createEntry(day6);
+      entry6.energy_score = 7;
+      entry6.morning_restorers = ["Morning coffee alone"];
+      entry6.evening_restorers = ["Reading"];
+      testData[formatDate(day6)] = entry6;
+
+      // Day 7 (today): Email, Morning coffee, energy 5
+      var entry7 = createEntry(today);
+      entry7.energy_score = 5;
+      entry7.morning_drains = ["Email catch-up"];
+      entry7.morning_restorers = ["Morning coffee alone"];
+      testData[formatDate(today)] = entry7;
+
+      localStorage.setItem("energy_tracker_entries", JSON.stringify(testData));
+
+      var dates = Object.keys(testData).sort();
+      document.getElementById("status").innerHTML =
+        "✅ Test data seeded for dates: " + dates.join(", ") +
+        "<br><br>Now go to <a href='http://localhost:5173'>http://localhost:5173</a>, refresh, and click 'Analyze My Patterns'" +
+        "<br><br><strong>Expected: Average 4.3/10, Email catch-up (Strong), Coordination tasks (Weak), Cognitive Load detected</strong>";
+    }
+
+    function clearData() {
+      localStorage.removeItem("energy_tracker_entries");
+      localStorage.removeItem("energy_tracker_active_focus");
+      localStorage.removeItem("energy_tracker_previous_focus");
+      document.getElementById("status").textContent = "✅ All data cleared!";
+    }
+  </script>
+</body>
+</html>
