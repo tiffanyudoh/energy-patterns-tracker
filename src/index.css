@@ -1,23 +1,78 @@
 @import "tailwindcss";
 
 :root {
-  /* Battery colors from spec */
+  /* Battery colors from spec - UNCHANGED */
   --battery-1-2: #8B4513;
   --battery-3-4: #CC5500;
   --battery-5-6: #708090;
   --battery-7-8: #90EE90;
   --battery-9-10: #008B8B;
+
+  /* ============================================
+     WARM NEUTRALS COLOR PALETTE
+     ============================================ */
+
+  /* Backgrounds */
+  --bg-primary: #FDFCFB;
+  --bg-secondary: #F7F5F3;
+  --bg-tertiary: #EBE8E4;
+
+  /* Text */
+  --text-primary: #2D2926;
+  --text-secondary: #5C5651;
+  --text-tertiary: #8B8580;
+
+  /* Accents */
+  --accent: #9C8B7A;
+  --accent-light: #D4C4B0;
+
+  /* States */
+  --success: #A8B5A0;
+  --warning: #C4A68A;
+  --error: #B89080;
+
+  /* Card Accent Colors */
+  --accent-rich: #6B4444;
+  --drain-accent: #C07850;
+  --restorer-accent: #7A9B6E;
+}
+
+/* Tailwind v4 theme extension */
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+
+  --color-accent-rich: var(--accent-rich);
+  --color-drain-accent: var(--drain-accent);
+  --color-restorer-accent: var(--restorer-accent);
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  color: #333;
-  background-color: #fafafa;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   line-height: 1.5;
 }
 
 /* Minimal focus styles */
 *:focus-visible {
-  outline: 2px solid #708090;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Smooth transitions for interactive elements */
+button, a, [role="button"] {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 }

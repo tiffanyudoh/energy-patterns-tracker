@@ -21,6 +21,12 @@
   <button class="primary" onclick="seedTrendData()">Seed 14-Day Trend Data</button>
   <p><small>Week 1 avg: 4.7 → Week 2 avg: 5.7 = ↑ trend</small></p>
 
+  <h2>Edge Case Tests</h2>
+  <button class="secondary" onclick="seedEdgeCase1()">Edge Case 1: Week 2 &lt;3 days</button>
+  <button class="secondary" onclick="seedEdgeCase2()">Edge Case 2: Identical weeks</button>
+  <button class="secondary" onclick="seedEdgeCase3()">Edge Case 3: Pattern reversal</button>
+  <button class="secondary" onclick="seedEdgeCase4()">Edge Case 4: No overlap</button>
+
   <h2>Clear</h2>
   <button class="secondary" onclick="clearData()">Clear All Data</button>
 
@@ -91,123 +97,131 @@
       var today = new Date();
       var testData = {};
 
-      // WEEK 1 (days 13-7 ago) - Average ~4.7
+      // ================================================================
+      // WEEK 1 (days 13-7 ago) - Lower energy, more drains
+      // Target average: ~4.4
+      // ================================================================
 
-      // Day 1 (Mon, 13 days ago): Energy 4
+      // Day 1 (13 days ago): Energy 4
       var day1 = new Date(today); day1.setDate(today.getDate() - 13);
       testData[formatDate(day1)] = createEntry(day1, 4,
-        ["Email catch-up", "Coordination tasks"], [], // morning
-        [], [], // afternoon
-        ["Household maintenance"], [] // evening
+        ["Email catch-up", "Coordination tasks"], [],
+        ["Context switching"], [],
+        [], ["Reading"],
+        {afternoon_custom_drain: "Scheduling appointments"}
       );
 
-      // Day 2 (Tue, 12 days ago): Energy 3
+      // Day 2 (12 days ago): Energy 3
       var day2 = new Date(today); day2.setDate(today.getDate() - 12);
       testData[formatDate(day2)] = createEntry(day2, 3,
-        ["Email catch-up"], [], // morning
-        ["Context switching"], [], // afternoon
-        [], [], // evening
-        {morning_custom_drain: "School drop-off"}
+        ["Email catch-up"], [],
+        ["Meeting overload"], [],
+        [], [],
+        {morning_custom_drain: "Planning weekly tasks"}
       );
 
-      // Day 3 (Wed, 11 days ago): Energy 6
+      // Day 3 (11 days ago): Energy 5
       var day3 = new Date(today); day3.setDate(today.getDate() - 11);
-      testData[formatDate(day3)] = createEntry(day3, 6,
-        [], ["Morning coffee alone", "Focused work block"], // morning
-        [], [], // afternoon
-        [], ["Reading"] // evening
+      testData[formatDate(day3)] = createEntry(day3, 5,
+        ["Email catch-up"], ["Morning coffee alone"],
+        [], ["Focused work block"],
+        [], []
       );
 
-      // Day 4 (Thu, 10 days ago): Energy 4
+      // Day 4 (10 days ago): Energy 4
       var day4 = new Date(today); day4.setDate(today.getDate() - 10);
       testData[formatDate(day4)] = createEntry(day4, 4,
-        ["Email catch-up", "Coordination tasks"], [], // morning
-        ["Meeting overload"], [], // afternoon
-        [], [] // evening
+        ["Email catch-up", "Administrative tasks"], [],
+        ["Coordination tasks"], [],
+        [], [],
+        {evening_custom_drain: "Organizing family schedule"}
       );
 
-      // Day 5 (Fri, 9 days ago): Energy 5
+      // Day 5 (9 days ago): Energy 5
       var day5 = new Date(today); day5.setDate(today.getDate() - 9);
       testData[formatDate(day5)] = createEntry(day5, 5,
-        ["Email catch-up"], [], // morning
-        [], ["Focused work block"], // afternoon
-        [], ["Creative project time"] // evening
+        ["Email catch-up"], [],
+        [], ["Walking"],
+        [], ["Reading"]
       );
 
-      // Day 6 (Sat, 8 days ago): Energy 7
+      // Day 6 (8 days ago): Energy 6
       var day6 = new Date(today); day6.setDate(today.getDate() - 8);
-      testData[formatDate(day6)] = createEntry(day6, 7,
-        [], ["Morning coffee alone"], // morning
-        [], ["Walking"], // afternoon
-        [], ["Reading"] // evening
+      testData[formatDate(day6)] = createEntry(day6, 6,
+        [], ["Morning coffee alone"],
+        [], ["Focused work block"],
+        [], ["Creative project time"]
       );
 
-      // Day 7 (Sun, 7 days ago): Energy 4
+      // Day 7 (7 days ago): Energy 4
       var day7 = new Date(today); day7.setDate(today.getDate() - 7);
       testData[formatDate(day7)] = createEntry(day7, 4,
-        ["Household maintenance"], [], // morning
-        [], [], // afternoon
-        [], [], // evening
-        {morning_custom_drain: "Meal planning", afternoon_custom_drain: "Sister care coordination"}
+        ["Email catch-up", "Household maintenance"], [],
+        [], [],
+        [], [],
+        {morning_custom_drain: "Meal planning"}
       );
 
-      // WEEK 2 (days 6-0 ago) - Average ~5.7
+      // ================================================================
+      // WEEK 2 (days 6-0 ago) - Higher energy, more restorers
+      // Target average: ~6.0
+      // ================================================================
 
-      // Day 8 (Mon, 6 days ago): Energy 5
+      // Day 8 (6 days ago): Energy 5
       var day8 = new Date(today); day8.setDate(today.getDate() - 6);
       testData[formatDate(day8)] = createEntry(day8, 5,
-        ["Email catch-up"], [], // morning - batched!
-        [], ["Focused work block"], // afternoon
-        [], [] // evening
+        ["Email catch-up"], ["Morning coffee alone"],
+        [], ["Focused work block"],
+        [], ["Reading"]
       );
 
-      // Day 9 (Tue, 5 days ago): Energy 4
+      // Day 9 (5 days ago): Energy 6
       var day9 = new Date(today); day9.setDate(today.getDate() - 5);
-      testData[formatDate(day9)] = createEntry(day9, 4,
-        [], ["Morning coffee alone"], // morning
-        ["Context switching"], [], // afternoon
-        [], [], // evening
-        {morning_custom_drain: "School drop-off"}
+      testData[formatDate(day9)] = createEntry(day9, 6,
+        ["Email catch-up"], ["Morning coffee alone"],
+        [], ["Walking"],
+        [], ["Creative project time"]
       );
 
-      // Day 10 (Wed, 4 days ago): Energy 7
+      // Day 10 (4 days ago): Energy 7
       var day10 = new Date(today); day10.setDate(today.getDate() - 4);
       testData[formatDate(day10)] = createEntry(day10, 7,
-        ["Email catch-up"], ["Morning coffee alone", "Focused work block"], // morning
-        [], [], // afternoon
-        [], ["Reading"] // evening
+        [], ["Morning coffee alone", "Focused work block"],
+        [], ["Walking"],
+        [], ["Reading"]
       );
 
-      // Day 11 (Thu, 3 days ago): Energy 5
+      // Day 11 (3 days ago): Energy 5
       var day11 = new Date(today); day11.setDate(today.getDate() - 3);
       testData[formatDate(day11)] = createEntry(day11, 5,
-        ["Coordination tasks"], [], // morning
-        [], ["Focused work block"], // afternoon
-        [], ["Creative project time"] // evening
+        ["Email catch-up"], [],
+        ["Coordination tasks"], ["Focused work block"],
+        [], [],
+        {afternoon_custom_drain: "Scheduling next week"}
       );
 
-      // Day 12 (Fri, 2 days ago): Energy 6
+      // Day 12 (2 days ago): Energy 6
       var day12 = new Date(today); day12.setDate(today.getDate() - 2);
       testData[formatDate(day12)] = createEntry(day12, 6,
-        ["Email catch-up"], ["Morning coffee alone"], // morning
-        [], ["Focused work block", "Walking"], // afternoon
-        [], [] // evening
+        [], ["Morning coffee alone"],
+        [], ["Focused work block", "Walking"],
+        [], ["Reading"]
       );
 
-      // Day 13 (Sat, 1 day ago): Energy 8
+      // Day 13 (1 day ago): Energy 7
       var day13 = new Date(today); day13.setDate(today.getDate() - 1);
-      testData[formatDate(day13)] = createEntry(day13, 8,
-        ["Household maintenance"], ["Morning coffee alone"], // morning
-        [], ["Walking"], // afternoon
-        [], ["Reading"] // evening
+      testData[formatDate(day13)] = createEntry(day13, 7,
+        [], ["Morning coffee alone"],
+        [], ["Walking"],
+        [], ["Reading", "Creative project time"]
       );
 
-      // Day 14 (Sun, today): Energy 5
-      testData[formatDate(today)] = createEntry(today, 5,
-        ["Household maintenance"], [], // morning
-        [], ["Creative project time"], // afternoon
-        [], [], // evening
-        {morning_custom_drain: "Meal planning for the week"}
+      // Day 14 (today): Energy 6
+      testData[formatDate(today)] = createEntry(today, 6,
+        [], ["Morning coffee alone"],
+        [], ["Focused work block"],
+        [], [],
+        {morning_custom_drain: "Planning the week ahead"}
       );
 
       localStorage.setItem("energy_tracker_entries", JSON.stringify(testData));
@@ -227,15 +241,210 @@
       var week1Avg = week1Dates.reduce((sum, date) => sum + testData[date].energy_score, 0) / 7;
       var week2Avg = week2Dates.reduce((sum, date) => sum + testData[date].energy_score, 0) / 7;
 
+      // Count patterns for display
+      var week2Drains = {};
+      var week2Restorers = {};
+      var cognitiveLoadCount = 0;
+      var cognitiveKeywords = ['coordination', 'scheduling', 'planning', 'organizing', 'admin'];
+
+      week2Dates.forEach(function(date) {
+        var entry = testData[date];
+        // Count drains
+        entry.morning_drains.forEach(function(d) { week2Drains[d] = (week2Drains[d] || 0) + 1; });
+        entry.afternoon_drains.forEach(function(d) { week2Drains[d] = (week2Drains[d] || 0) + 1; });
+        entry.evening_drains.forEach(function(d) { week2Drains[d] = (week2Drains[d] || 0) + 1; });
+        // Count restorers
+        entry.morning_restorers.forEach(function(r) { week2Restorers[r] = (week2Restorers[r] || 0) + 1; });
+        entry.afternoon_restorers.forEach(function(r) { week2Restorers[r] = (week2Restorers[r] || 0) + 1; });
+        entry.evening_restorers.forEach(function(r) { week2Restorers[r] = (week2Restorers[r] || 0) + 1; });
+        // Check cognitive load
+        var allDrains = [
+          ...entry.morning_drains, ...entry.afternoon_drains, ...entry.evening_drains,
+          entry.morning_custom_drain, entry.afternoon_custom_drain, entry.evening_custom_drain, entry.custom_drain
+        ].filter(Boolean);
+        allDrains.forEach(function(d) {
+          if (cognitiveKeywords.some(function(k) { return d.toLowerCase().includes(k); })) {
+            cognitiveLoadCount++;
+          }
+        });
+      });
+
       showStatus(
         "✅ 14-day trend data seeded!<br><br>" +
-        "<strong>Week 1:</strong> " + week1Dates[0] + " to " + week1Dates[6] + "<br>" +
+        "<strong>Week 1 (Previous):</strong> " + week1Dates[0] + " to " + week1Dates[6] + "<br>" +
         "Energies: " + week1Dates.map(d => testData[d].energy_score).join(", ") + "<br>" +
         "Average: " + week1Avg.toFixed(1) + "/10<br><br>" +
-        "<strong>Week 2:</strong> " + week2Dates[0] + " to " + week2Dates[6] + "<br>" +
+        "<strong>Week 2 (Current):</strong> " + week2Dates[0] + " to " + week2Dates[6] + "<br>" +
         "Energies: " + week2Dates.map(d => testData[d].energy_score).join(", ") + "<br>" +
         "Average: " + week2Avg.toFixed(1) + "/10<br><br>" +
-        "<strong>Expected trend: ↑ (up from " + week1Avg.toFixed(1) + " to " + week2Avg.toFixed(1) + ")</strong><br><br>" +
+        "<strong>Expected Results:</strong><br>" +
+        "• Trend: ↑ (up from " + week1Avg.toFixed(1) + " to " + week2Avg.toFixed(1) + ")<br>" +
+        "• Top Drain: Email catch-up (4x this week)<br>" +
+        "• Top Restorer: Morning coffee alone (6x this week)<br>" +
+        "• Cognitive Load: " + (cognitiveLoadCount >= 3 ? "Detected (" + cognitiveLoadCount + " items)" : "Within limits") + "<br><br>" +
+        "<a href='/'>Go to app →</a>"
+      );
+    }
+
+    // ================================================================
+    // EDGE CASE 1: Week 2 with <3 days
+    // Week 1: 7 days logged, Week 2: Only 2 days logged
+    // Expected: Show error "Need at least 3 days"
+    // ================================================================
+    function seedEdgeCase1() {
+      var today = new Date();
+      var testData = {};
+
+      // Week 1 (days 13-7 ago) - Full 7 days
+      for (var i = 13; i >= 7; i--) {
+        var d = new Date(today); d.setDate(today.getDate() - i);
+        testData[formatDate(d)] = createEntry(d, 5,
+          ["Email catch-up"], ["Morning coffee alone"],
+          [], ["Focused work block"],
+          [], ["Reading"]
+        );
+      }
+
+      // Week 2 (days 6-0 ago) - Only 2 days (today and yesterday)
+      var day1 = new Date(today); day1.setDate(today.getDate() - 1);
+      testData[formatDate(day1)] = createEntry(day1, 6,
+        ["Email catch-up"], ["Morning coffee alone"],
+        [], [],
+        [], []
+      );
+      testData[formatDate(today)] = createEntry(today, 7,
+        [], ["Morning coffee alone"],
+        [], ["Walking"],
+        [], []
+      );
+
+      localStorage.setItem("energy_tracker_entries", JSON.stringify(testData));
+      showStatus(
+        "✅ Edge Case 1: Week 2 with <3 days<br><br>" +
+        "<strong>Week 1:</strong> 7 days logged (avg 5.0)<br>" +
+        "<strong>Week 2:</strong> Only 2 days logged<br><br>" +
+        "<strong>Expected:</strong> Error message 'Need at least 3 days'<br><br>" +
+        "<a href='/'>Go to app →</a>"
+      );
+    }
+
+    // ================================================================
+    // EDGE CASE 2: Identical energy both weeks
+    // All days energy = 5
+    // Expected: → (stable), minimal patterns
+    // ================================================================
+    function seedEdgeCase2() {
+      var today = new Date();
+      var testData = {};
+
+      // Both weeks - all energy = 5, minimal activities
+      for (var i = 13; i >= 0; i--) {
+        var d = new Date(today); d.setDate(today.getDate() - i);
+        testData[formatDate(d)] = createEntry(d, 5,
+          [], [],
+          [], [],
+          [], []
+        );
+      }
+
+      localStorage.setItem("energy_tracker_entries", JSON.stringify(testData));
+      showStatus(
+        "✅ Edge Case 2: Identical weeks<br><br>" +
+        "<strong>Week 1:</strong> All days energy = 5<br>" +
+        "<strong>Week 2:</strong> All days energy = 5<br><br>" +
+        "<strong>Expected:</strong><br>" +
+        "• Trend: → (stable at 5.0)<br>" +
+        "• No drain patterns (no activities logged)<br>" +
+        "• No restorer patterns (no activities logged)<br>" +
+        "• Cognitive load: Within limits<br><br>" +
+        "<a href='/'>Go to app →</a>"
+      );
+    }
+
+    // ================================================================
+    // EDGE CASE 3: Pattern reversal
+    // Week 1: Email = drain, Coffee = restorer
+    // Week 2: Email = restorer, Coffee = drain (unusual!)
+    // Expected: Handle gracefully
+    // ================================================================
+    function seedEdgeCase3() {
+      var today = new Date();
+      var testData = {};
+
+      // Week 1 (days 13-7 ago) - Email as drain, Coffee as restorer
+      for (var i = 13; i >= 7; i--) {
+        var d = new Date(today); d.setDate(today.getDate() - i);
+        testData[formatDate(d)] = createEntry(d, 4,
+          ["Email catch-up"], ["Morning coffee alone"], // Email drain, Coffee restorer
+          [], [],
+          [], []
+        );
+      }
+
+      // Week 2 (days 6-0 ago) - REVERSED: Coffee as drain, Email as restorer
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date(today); d.setDate(today.getDate() - i);
+        testData[formatDate(d)] = createEntry(d, 6,
+          ["Morning coffee alone"], ["Email catch-up"], // Coffee drain, Email restorer!
+          [], [],
+          [], []
+        );
+      }
+
+      localStorage.setItem("energy_tracker_entries", JSON.stringify(testData));
+      showStatus(
+        "✅ Edge Case 3: Pattern reversal<br><br>" +
+        "<strong>Week 1:</strong> Email = drain, Coffee = restorer (avg 4.0)<br>" +
+        "<strong>Week 2:</strong> Coffee = drain, Email = restorer (avg 6.0)<br><br>" +
+        "<strong>Expected:</strong><br>" +
+        "• Trend: ↑ (up from 4.0 to 6.0)<br>" +
+        "• Top Drain: Morning coffee alone (7x)<br>" +
+        "• Top Restorer: Email catch-up (7x)<br>" +
+        "• Note: Activities can be drains OR restorers depending on context!<br><br>" +
+        "<a href='/'>Go to app →</a>"
+      );
+    }
+
+    // ================================================================
+    // EDGE CASE 4: No overlapping patterns
+    // Week 1: Email, Coordination, Meetings
+    // Week 2: Completely different activities
+    // Expected: Show new patterns only (current week)
+    // ================================================================
+    function seedEdgeCase4() {
+      var today = new Date();
+      var testData = {};
+
+      // Week 1 (days 13-7 ago) - Work-focused drains
+      for (var i = 13; i >= 7; i--) {
+        var d = new Date(today); d.setDate(today.getDate() - i);
+        testData[formatDate(d)] = createEntry(d, 4,
+          ["Email catch-up", "Coordination tasks"], [],
+          ["Meeting overload"], [],
+          [], ["Reading"]
+        );
+      }
+
+      // Week 2 (days 6-0 ago) - Completely different activities
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date(today); d.setDate(today.getDate() - i);
+        testData[formatDate(d)] = createEntry(d, 6,
+          ["Household maintenance"], ["Morning coffee alone"],
+          ["Social obligations"], ["Walking"],
+          [], ["Creative project time"]
+        );
+      }
+
+      localStorage.setItem("energy_tracker_entries", JSON.stringify(testData));
+      showStatus(
+        "✅ Edge Case 4: No overlapping patterns<br><br>" +
+        "<strong>Week 1:</strong> Email, Coordination, Meetings (avg 4.0)<br>" +
+        "<strong>Week 2:</strong> Household, Social, Walking (avg 6.0)<br><br>" +
+        "<strong>Expected:</strong><br>" +
+        "• Trend: ↑ (up from 4.0 to 6.0)<br>" +
+        "• Top Drain: Household maintenance or Social obligations (7x each)<br>" +
+        "• Top Restorer: Morning coffee alone or Walking (7x each)<br>" +
+        "• Note: Only current week patterns shown<br><br>" +
         "<a href='/'>Go to app →</a>"
       );
     }

@@ -30,37 +30,37 @@ function TimeBlockDisplay({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-900">{label}</h4>
+      <h4 className="text-[0.9375rem] font-semibold text-accent">{label}</h4>
 
       {/* Drains */}
       <div className="text-sm">
-        <span className="text-gray-500">Drains: </span>
+        <span className="text-text-secondary">Drains: </span>
         {hasDrains ? (
-          <span className="text-gray-700">
+          <span className="text-text-primary">
             {drains.join(', ')}
             {drains.length > 0 && customDrain.trim() && ', '}
             {customDrain.trim() && (
-              <span className="italic">"{customDrain.trim()}"</span>
+              <span className="italic text-text-secondary">"{customDrain.trim()}"</span>
             )}
           </span>
         ) : (
-          <span className="text-gray-400">(none)</span>
+          <span className="text-text-tertiary">(none)</span>
         )}
       </div>
 
       {/* Restorers */}
       <div className="text-sm">
-        <span className="text-gray-500">Restorers: </span>
+        <span className="text-text-secondary">Restorers: </span>
         {hasRestorers ? (
-          <span className="text-gray-700">
+          <span className="text-text-primary">
             {restorers.join(', ')}
             {restorers.length > 0 && customRestorer.trim() && ', '}
             {customRestorer.trim() && (
-              <span className="italic">"{customRestorer.trim()}"</span>
+              <span className="italic text-text-secondary">"{customRestorer.trim()}"</span>
             )}
           </span>
         ) : (
-          <span className="text-gray-400">(none)</span>
+          <span className="text-text-tertiary">(none)</span>
         )}
       </div>
     </div>
@@ -83,14 +83,14 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
     <div className="space-y-6">
       {/* Battery display */}
       <div className="flex flex-col items-center py-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">
+        <h3 className="text-sm font-medium text-text-secondary mb-3">
           Energy Level
         </h3>
         <Battery value={entry.energy_score} interactive={false} />
       </div>
 
       {/* Time blocks */}
-      <div className="space-y-4 bg-white rounded-lg border border-gray-200 p-4">
+      <div className="space-y-4 bg-bg-secondary rounded-lg border-l-2 border-l-accent border border-accent-light/50 p-4 shadow-[0_1px_2px_rgba(156,139,122,0.06)]">
         {/* Morning */}
         <TimeBlockDisplay
           label={TIME_BLOCK_LABELS.morning}
@@ -100,7 +100,7 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
           customRestorer={entry.morning_custom_restorer}
         />
 
-        <hr className="border-gray-100" />
+        <hr className="border-accent-light/50" />
 
         {/* Afternoon */}
         <TimeBlockDisplay
@@ -111,7 +111,7 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
           customRestorer={entry.afternoon_custom_restorer}
         />
 
-        <hr className="border-gray-100" />
+        <hr className="border-accent-light/50" />
 
         {/* Evening */}
         <TimeBlockDisplay
@@ -125,21 +125,21 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
         {/* Whole-day notes (if any) */}
         {hasWholeDayNotes && (
           <>
-            <hr className="border-gray-100" />
+            <hr className="border-accent-light/50" />
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-900">Other Notes</h4>
+              <h4 className="text-[0.9375rem] font-semibold text-accent">Other Notes</h4>
               {entry.custom_drain.trim() && (
                 <div className="text-sm">
-                  <span className="text-gray-500">Drains: </span>
-                  <span className="text-gray-700 italic">
+                  <span className="text-text-secondary">Drains: </span>
+                  <span className="text-text-secondary italic">
                     "{entry.custom_drain.trim()}"
                   </span>
                 </div>
               )}
               {entry.custom_restorer.trim() && (
                 <div className="text-sm">
-                  <span className="text-gray-500">Restorers: </span>
-                  <span className="text-gray-700 italic">
+                  <span className="text-text-secondary">Restorers: </span>
+                  <span className="text-text-secondary italic">
                     "{entry.custom_restorer.trim()}"
                   </span>
                 </div>
@@ -153,7 +153,7 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
       <button
         type="button"
         onClick={onEdit}
-        className="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+        className="w-full py-3 px-4 border border-accent rounded-lg text-accent font-medium hover:border-accent-rich hover:text-accent-rich bg-transparent"
       >
         Edit
       </button>

@@ -17,6 +17,8 @@ export interface WeeklyData {
   avg_energy: number;
   previous_week_avg: number | null;
   days_logged: number;
+  previous_week_entries: DailyEntry[];
+  previous_week_days_logged: number;
 }
 
 export type WeeklyDataResult =
@@ -79,6 +81,8 @@ export function getWeeklyData(): WeeklyDataResult {
       avg_energy,
       previous_week_avg,
       days_logged: currentWeekEntries.length,
+      previous_week_entries: previousWeekEntries,
+      previous_week_days_logged: previousWeekEntries.length,
     },
   };
 }
@@ -339,6 +343,40 @@ export interface CognitiveLoadResult {
   avg_energy: number;
   confidence: 'Strong pattern' | 'Emerging pattern' | 'Weak signal';
   specific_activities: string[];
+}
+
+export interface CognitiveLoadStats {
+  frequency: number;
+  avg_energy: number | null;
+}
+
+/**
+ * Get cognitive load statistics for a set of entries (used for comparison)
+ * Returns frequency count and average energy regardless of threshold
+ */
+export function getCognitiveLoadStats(entries: DailyEntry[]): CognitiveLoadStats {
+  const matchedActivities: Array<{ activity: string; energy: number }> = [];
+
+  for (const entry of entries) {
+    const drains = extractAllDrains(entry);
+    for (const { activity, energy } of drains) {
+      if (matchesCognitiveLoad(activity)) {
+        matchedActivities.push({ activity, energy });
+      }
+    }
+  }
+
+  if (matchedActivities.length === 0) {
+    return { frequency: 0, avg_energy: null };
+  }
+
+  const totalEnergy = matchedActivities.reduce((sum, item) => sum + item.energy, 0);
+  const avg_energy = Math.round((totalEnergy / matchedActivities.length) * 10) / 10;
+
+  return {
+    frequency: matchedActivities.length,
+    avg_energy,
+  };
 }
 
 /**

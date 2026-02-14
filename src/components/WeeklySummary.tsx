@@ -43,9 +43,9 @@ export function WeeklySummary({
   const batteryValue = Math.round(avgEnergy);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-bg-secondary border border-accent-light/50 rounded-lg p-6 shadow-[0_1px_3px_rgba(107,68,68,0.08)]">
       {/* Heading */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-text-primary mb-4">
         Your Week in Energy
       </h2>
 
@@ -54,25 +54,25 @@ export function WeeklySummary({
         <Battery value={batteryValue} interactive={false} />
 
         <div className="text-center">
-          <span className="text-xl font-medium text-gray-900">
+          <span className="text-xl font-medium text-text-primary">
             Average: {avgEnergy}/10
           </span>
-          <span className="text-sm text-gray-500 ml-2">
+          <span className="text-sm text-text-secondary ml-2">
             ({daysLogged} days logged)
           </span>
         </div>
 
         {/* Trend indicator */}
         {trend && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-text-secondary">
             <span>Trend vs last week:</span>
             <span
               className={`font-medium ${
                 trend.symbol === '↑'
-                  ? 'text-teal-600'
+                  ? 'text-restorer-accent'
                   : trend.symbol === '↓'
-                  ? 'text-orange-600'
-                  : 'text-gray-500'
+                  ? 'text-drain-accent'
+                  : 'text-accent'
               }`}
             >
               {trend.symbol} ({trend.text})
