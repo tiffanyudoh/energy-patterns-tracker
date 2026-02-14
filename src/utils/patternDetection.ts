@@ -34,7 +34,9 @@ export type WeeklyDataResult =
 export function getWeeklyData(): WeeklyDataResult {
   const allEntries = getEntries();
   const last7Days = getLastNDays(7);
-  const previous7Days = getLastNDays(7, last7Days[6]); // 7 days before the oldest day in current week
+  // Get previous 7 days: start from the day BEFORE the oldest current week day
+  const oldestCurrentDay = last7Days[last7Days.length - 1];
+  const previous7Days = getLastNDays(8, oldestCurrentDay).slice(1); // Skip the first (which is oldestCurrentDay)
 
   // Get entries for current week
   const currentWeekEntries: DailyEntry[] = [];
@@ -186,8 +188,13 @@ export function detectDrainPatterns(entries: DailyEntry[]): PatternInfo[] {
     });
   }
 
-  // Sort by frequency (descending) and return top 2
-  patterns.sort((a, b) => b.frequency - a.frequency);
+  // Sort by frequency (descending), then alphabetically for ties
+  patterns.sort((a, b) => {
+    if (b.frequency !== a.frequency) {
+      return b.frequency - a.frequency;
+    }
+    return a.activity.toLowerCase().localeCompare(b.activity.toLowerCase());
+  });
   return patterns.slice(0, 2);
 }
 
@@ -284,8 +291,13 @@ export function detectRestorerPatterns(entries: DailyEntry[]): PatternInfo[] {
     });
   }
 
-  // Sort by frequency (descending) and return top 2
-  patterns.sort((a, b) => b.frequency - a.frequency);
+  // Sort by frequency (descending), then alphabetically for ties
+  patterns.sort((a, b) => {
+    if (b.frequency !== a.frequency) {
+      return b.frequency - a.frequency;
+    }
+    return a.activity.toLowerCase().localeCompare(b.activity.toLowerCase());
+  });
   return patterns.slice(0, 2);
 }
 
@@ -312,6 +324,14 @@ const COGNITIVE_LOAD_KEYWORDS = [
   'family obligations',
 ];
 
+/**
+ * Check if an activity matches any cognitive load keyword
+ */
+function matchesCognitiveLoad(activity: string): boolean {
+  const lower = activity.toLowerCase();
+  return COGNITIVE_LOAD_KEYWORDS.some((keyword) => lower.includes(keyword));
+}
+
 export interface CognitiveLoadResult {
   detected: boolean;
   category: string;
@@ -319,14 +339,6 @@ export interface CognitiveLoadResult {
   avg_energy: number;
   confidence: 'Strong pattern' | 'Emerging pattern' | 'Weak signal';
   specific_activities: string[];
-}
-
-/**
- * Check if an activity matches any cognitive load keyword
- */
-function matchesCognitiveLoad(activity: string): boolean {
-  const lower = activity.toLowerCase();
-  return COGNITIVE_LOAD_KEYWORDS.some((keyword) => lower.includes(keyword));
 }
 
 /**

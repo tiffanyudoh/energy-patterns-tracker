@@ -98,25 +98,26 @@ export function InsightCards({
 }: InsightCardsProps) {
   return (
     <div className="space-y-4">
-      {/* Drain cards (max 2) */}
-      {drainSuggestions.slice(0, 2).map((suggestion, index) => (
+      {/* Top drain card (max 1) */}
+      {drainSuggestions.slice(0, 1).map((suggestion, index) => (
         <InsightCard key={`drain-${index}`} suggestion={suggestion} />
       ))}
 
-      {/* Restorer cards (max 2) */}
-      {restorerSuggestions.slice(0, 2).map((suggestion, index) => (
+      {/* Top restorer card (max 1) */}
+      {restorerSuggestions.slice(0, 1).map((suggestion, index) => (
         <InsightCard key={`restorer-${index}`} suggestion={suggestion} />
       ))}
 
-      {/* Cognitive load card (if detected) */}
-      {cognitiveLoadSuggestion && (
+      {/* Cognitive load card - always shown */}
+      {cognitiveLoadSuggestion ? (
         <InsightCard suggestion={cognitiveLoadSuggestion} />
+      ) : (
+        <CognitiveLoadWithinLimitsCard />
       )}
 
-      {/* Empty state if no patterns detected */}
+      {/* Empty state if no drain/restorer patterns detected */}
       {drainSuggestions.length === 0 &&
-        restorerSuggestions.length === 0 &&
-        !cognitiveLoadSuggestion && (
+        restorerSuggestions.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <p>No significant patterns detected yet.</p>
             <p className="text-sm mt-1">
@@ -124,6 +125,27 @@ export function InsightCards({
             </p>
           </div>
         )}
+    </div>
+  );
+}
+
+/**
+ * Card shown when cognitive load is within normal limits
+ */
+function CognitiveLoadWithinLimitsCard() {
+  return (
+    <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+      <h3 className="text-sm font-medium text-green-900 mb-2">
+        ✓ Cognitive Load
+      </h3>
+      <div className="mb-3">
+        <span className="font-medium text-gray-900">Within normal limits</span>
+      </div>
+      <div className="border-t border-gray-200 pt-3">
+        <p className="text-sm text-gray-600 leading-relaxed">
+          No significant coordination or planning burden detected this week. Keep it up!
+        </p>
+      </div>
     </div>
   );
 }
