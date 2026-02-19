@@ -40,6 +40,32 @@ export interface AppState {
 // Time block type
 export type TimeBlock = 'morning' | 'afternoon' | 'evening';
 
+// Category type for drains/boosts
+export type CategoryType = 'drains' | 'boosts';
+
+// Custom categories saved per time block
+export interface CustomCategories {
+  morning_drains: string[];
+  morning_boosts: string[];
+  afternoon_drains: string[];
+  afternoon_boosts: string[];
+  evening_drains: string[];
+  evening_boosts: string[];
+  whole_day_drains: string[];
+  whole_day_boosts: string[];
+}
+
+export const EMPTY_CUSTOM_CATEGORIES: CustomCategories = {
+  morning_drains: [],
+  morning_boosts: [],
+  afternoon_drains: [],
+  afternoon_boosts: [],
+  evening_drains: [],
+  evening_boosts: [],
+  whole_day_drains: [],
+  whole_day_boosts: [],
+};
+
 // Battery component props
 export interface BatteryProps {
   value: number; // 1-10

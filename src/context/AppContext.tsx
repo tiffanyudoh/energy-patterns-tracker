@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
-import { AppState, DailyEntry, WeeklyFocus } from '@/types';
+import { AppState, DailyEntry, WeeklyFocus, CustomCategories, EMPTY_CUSTOM_CATEGORIES } from '@/types';
 import {
   getAppState,
   saveEntry,
@@ -63,6 +63,8 @@ interface AppContextType {
   dispatch: React.Dispatch<AppAction>;
   showWeekStrip: boolean;
   setShowWeekStrip: (value: boolean) => void;
+  customCategories: CustomCategories;
+  setCustomCategories: (value: CustomCategories) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -73,6 +75,7 @@ interface AppProviderProps {
 }
 
 const SHOW_WEEK_STRIP_KEY = 'show_week_strip';
+const CUSTOM_CATEGORIES_KEY = 'custom_categories';
 
 export function AppProvider({ children }: AppProviderProps) {
   const [state, dispatch] = useReducer(appReducer, initialState);
@@ -86,6 +89,27 @@ export function AppProvider({ children }: AppProviderProps) {
     localStorage.setItem(SHOW_WEEK_STRIP_KEY, JSON.stringify(value));
   };
 
+  const [customCategories, setCustomCategoriesState] = useState<CustomCategories>(() => {
+    const stored = localStorage.getItem(CUSTOM_CATEGORIES_KEY);
+    if (stored) {
+      try {
+        // Merge with defaults so newly added keys (e.g. whole_day_*) are present
+        const parsed = JSON.parse(stored);
+        const merged = { ...EMPTY_CUSTOM_CATEGORIES, ...parsed };
+        localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(merged));
+        return merged;
+      } catch { /* fall through to create default */ }
+    }
+    // Key missing or corrupt — seed localStorage immediately
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(EMPTY_CUSTOM_CATEGORIES));
+    return EMPTY_CUSTOM_CATEGORIES;
+  });
+
+  const setCustomCategories = (value: CustomCategories) => {
+    setCustomCategoriesState(value);
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(value));
+  };
+
   // Load persisted state on mount
   useEffect(() => {
     const persistedState = getAppState();
@@ -93,7 +117,7 @@ export function AppProvider({ children }: AppProviderProps) {
   }, []);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, showWeekStrip, setShowWeekStrip }}>
+    <AppContext.Provider value={{ state, dispatch, showWeekStrip, setShowWeekStrip, customCategories, setCustomCategories }}>
       {children}
     </AppContext.Provider>
   );

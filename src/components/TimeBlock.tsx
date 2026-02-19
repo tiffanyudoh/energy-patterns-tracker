@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { TimeBlock as TimeBlockType } from '@/types';
+import { TimeBlock as TimeBlockType, CustomCategories } from '@/types';
 import { PREDEFINED_DRAINS, PREDEFINED_BOOSTS, TIME_BLOCK_LABELS, getDrainDisplayLabel } from '@/constants/activities';
+import { useAppContext } from '@/context/AppContext';
 
 interface TimeBlockProps {
   timeBlock: TimeBlockType;
@@ -19,8 +20,8 @@ interface TimeBlockProps {
  * Collapsible Time Block Component (Spec 1.2)
  *
  * - Collapsible section for Morning/Afternoon/Evening
- * - Multi-select checkboxes for drains and boosts
- * - Custom text fields for time-specific custom entries
+ * - Multi-select checkboxes for drains and boosts (predefined + custom categories)
+ * - Custom text fields with "Save as category" button
  */
 export function TimeBlock({
   timeBlock,
@@ -34,9 +35,33 @@ export function TimeBlock({
   onCustomBoostChange,
   defaultExpanded = false,
 }: TimeBlockProps) {
+  const { customCategories, setCustomCategories } = useAppContext();
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [drainSaved, setDrainSaved] = useState(false);
+  const [boostSaved, setBoostSaved] = useState(false);
+  const [drainError, setDrainError] = useState('');
+  const [boostError, setBoostError] = useState('');
+
 
   const label = TIME_BLOCK_LABELS[timeBlock];
+
+  const drainsKey = `${timeBlock}_drains` as keyof CustomCategories;
+  const boostsKey = `${timeBlock}_boosts` as keyof CustomCategories;
+  const customDrainsList = customCategories[drainsKey] || [];
+  const customBoostsList = customCategories[boostsKey] || [];
+
+  // Merge time-block-specific + whole-day custom categories (deduplicated)
+  const wholeDayDrains = (customCategories.whole_day_drains || []).filter(
+    (d) => !customDrainsList.some((c) => c.toLowerCase() === d.toLowerCase()),
+  );
+  const wholeDayBoosts = (customCategories.whole_day_boosts || []).filter(
+    (b) => !customBoostsList.some((c) => c.toLowerCase() === b.toLowerCase()),
+  );
+  const allCustomDrains = [...customDrainsList, ...wholeDayDrains];
+  const allCustomBoosts = [...customBoostsList, ...wholeDayBoosts];
+
+  const allDrains: string[] = [...PREDEFINED_DRAINS, ...allCustomDrains];
+  const allBoosts: string[] = [...PREDEFINED_BOOSTS, ...allCustomBoosts];
   const totalSelected = selectedDrains.length + selectedBoosts.length;
 
   const toggleDrain = (drain: string) => {
@@ -53,6 +78,41 @@ export function TimeBlock({
     } else {
       onBoostsChange([...selectedBoosts, boost]);
     }
+  };
+
+  const handleSaveCategory = (
+    value: string,
+    key: keyof CustomCategories,
+    existingList: string[],
+    setSaved: (v: boolean) => void,
+    clearField: () => void,
+    setError: (v: string) => void,
+  ) => {
+    const text = value.trim();
+    if (!text) return;
+    if (text.length > 50) {
+      setError('Too long (max 50 characters)');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    // Check duplicates across predefined + custom (case-insensitive)
+    const allExisting = [...PREDEFINED_DRAINS, ...PREDEFINED_BOOSTS, ...existingList];
+    if (allExisting.some((cat) => cat.toLowerCase() === text.toLowerCase())) {
+      setError('Already saved as a category');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    setCustomCategories({
+      ...customCategories,
+      [key]: [...customCategories[key], text],
+    });
+
+    setError('');
+    clearField();
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
@@ -92,29 +152,51 @@ export function TimeBlock({
               What drained your energy?
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {PREDEFINED_DRAINS.map((drain) => (
-                <label
-                  key={drain}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedDrains.includes(drain)}
-                    onChange={() => toggleDrain(drain)}
-                    className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
-                  />
-                  <span className="text-sm text-gray-700">{getDrainDisplayLabel(drain)}</span>
-                </label>
-              ))}
+              {allDrains.map((drain) => {
+                const isCustom = allCustomDrains.includes(drain);
+                return (
+                  <label
+                    key={drain}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedDrains.includes(drain)}
+                      onChange={() => toggleDrain(drain)}
+                      className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                    />
+                    <span className={`text-sm text-gray-700 ${isCustom ? 'italic' : ''}`}>
+                      {isCustom ? drain : getDrainDisplayLabel(drain)}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-            <input
-              type="text"
-              placeholder="Other drains..."
-              value={customDrain}
-              onChange={(e) => onCustomDrainChange(e.target.value)}
-              maxLength={200}
-              className="mt-2 w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
-            />
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Other drains..."
+                value={customDrain}
+                onChange={(e) => { onCustomDrainChange(e.target.value); setDrainError(''); }}
+                maxLength={200}
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
+              />
+              {customDrain.trim() && (
+                <button
+                  type="button"
+                  disabled={drainSaved}
+                  onClick={() => handleSaveCategory(customDrain, drainsKey, customDrainsList, setDrainSaved, () => onCustomDrainChange(''), setDrainError)}
+                  className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors text-white"
+                  style={{ background: drainSaved ? 'var(--boost-accent)' : 'var(--accent)' }}
+                  title="Save as permanent category"
+                >
+                  {drainSaved ? '\u2713 Saved' : 'Save'}
+                </button>
+              )}
+            </div>
+            {drainError && (
+              <p className="mt-1 text-xs text-error">{drainError}</p>
+            )}
           </div>
 
           {/* Boosts section */}
@@ -123,29 +205,51 @@ export function TimeBlock({
               What boosted your energy?
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {PREDEFINED_BOOSTS.map((boost) => (
-                <label
-                  key={boost}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedBoosts.includes(boost)}
-                    onChange={() => toggleBoost(boost)}
-                    className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
-                  />
-                  <span className="text-sm text-gray-700">{boost}</span>
-                </label>
-              ))}
+              {allBoosts.map((boost) => {
+                const isCustom = allCustomBoosts.includes(boost);
+                return (
+                  <label
+                    key={boost}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedBoosts.includes(boost)}
+                      onChange={() => toggleBoost(boost)}
+                      className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                    />
+                    <span className={`text-sm text-gray-700 ${isCustom ? 'italic' : ''}`}>
+                      {boost}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-            <input
-              type="text"
-              placeholder="Other boosts..."
-              value={customBoost}
-              onChange={(e) => onCustomBoostChange(e.target.value)}
-              maxLength={200}
-              className="mt-2 w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
-            />
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Other boosts..."
+                value={customBoost}
+                onChange={(e) => { onCustomBoostChange(e.target.value); setBoostError(''); }}
+                maxLength={200}
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
+              />
+              {customBoost.trim() && (
+                <button
+                  type="button"
+                  disabled={boostSaved}
+                  onClick={() => handleSaveCategory(customBoost, boostsKey, customBoostsList, setBoostSaved, () => onCustomBoostChange(''), setBoostError)}
+                  className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors text-white"
+                  style={{ background: boostSaved ? 'var(--boost-accent)' : 'var(--accent)' }}
+                  title="Save as permanent category"
+                >
+                  {boostSaved ? '\u2713 Saved' : 'Save'}
+                </button>
+              )}
+            </div>
+            {boostError && (
+              <p className="mt-1 text-xs text-error">{boostError}</p>
+            )}
           </div>
         </div>
       )}
