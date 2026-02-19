@@ -47,7 +47,7 @@ No login required. Data stays in your browser.
 
 ## Running Locally
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/tiffanyudoh/energy-patterns-tracker.git
 cd energy-patterns-tracker
 npm install
 npm run dev
