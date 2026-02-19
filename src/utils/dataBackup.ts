@@ -28,18 +28,39 @@ export function exportData(): boolean {
     };
 
     const jsonString = JSON.stringify(backup, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
+    const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
     const dateStr = new Date().toISOString().split('T')[0];
-    link.href = url;
-    link.download = `energy-tracker-backup-${dateStr}.json`;
+    const filename = `energy-tracker-backup-${dateStr}.json`;
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Android Chrome ignores the download attribute filename for blob URLs,
+    // generating a UUID filename instead. Data URI approach preserves it.
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    if (isAndroid) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const link = document.createElement('a');
+        link.href = reader.result as string;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => document.body.removeChild(link), 100);
+      };
+      reader.readAsDataURL(blob);
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
 
     return true;
   } catch {
