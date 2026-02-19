@@ -3,7 +3,7 @@
 A personal energy tracking app that identifies patterns in daily drains and restorers to inform boundary decisions.
 
 ## Live Demo
-[View Live App](https://your-app.vercel.app)
+[View Live App](https://energy-patterns-tracker.vercel.app/)
 
 ## Features
 - Daily energy logging with time-blocked activity selection
@@ -25,7 +25,7 @@ Minimal, analytical aesthetic inspired by quality journals.
 Color-coded "ribbon bookmark" system for visual hierarchy without gamification.
 
 ## Screenshots
-[Add 2-3 screenshots: daily log, weekly insights, settings page]
+[]
 
 ## Future Roadmap
 - [ ] One weekly focus selection (Phase 3)
