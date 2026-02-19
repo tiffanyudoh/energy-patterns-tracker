@@ -6,7 +6,7 @@ Log your day in under 2 minutes. Get pattern analysis after a week. Try one expe
 
 ## Live Demo
 
-👉 **[Try it here](https://energy-patterns-tracker.vercel.app/)**
+ **[Try it here](https://energy-patterns-tracker.vercel.app/)**
 
 No login required. Data stays in your browser.
 

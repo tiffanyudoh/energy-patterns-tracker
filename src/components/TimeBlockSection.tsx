@@ -23,6 +23,10 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
   const [wholeBoostSaved, setWholeBoostSaved] = useState(false);
   const [wholeDrainError, setWholeDrainError] = useState('');
   const [wholeBoostError, setWholeBoostError] = useState('');
+  const [pendingWholeDay, setPendingWholeDay] = useState<{
+    text: string;
+    type: 'drains' | 'boosts';
+  } | null>(null);
 
   const timeBlocks: TimeBlockType[] = ['morning', 'afternoon', 'evening'];
   const currentTimeBlock = getCurrentTimeBlock();
@@ -65,11 +69,9 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
     }
   };
 
-  const handleSaveWholeDayCategory = (
+  const initiateWholeDaySave = (
     value: string,
     type: 'drains' | 'boosts',
-    setSaved: (v: boolean) => void,
-    clearField: () => void,
     setError: (v: string) => void,
   ) => {
     const text = value.trim();
@@ -81,7 +83,7 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
     }
 
     const key = type === 'drains' ? 'whole_day_drains' : 'whole_day_boosts';
-    const existing = customCategories[key];
+    const existing = customCategories[key] || [];
 
     if (existing.some((cat) => cat.toLowerCase() === text.toLowerCase())) {
       setError('Already saved as a category');
@@ -89,15 +91,48 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
       return;
     }
 
+    setError('');
+    setPendingWholeDay({ text, type });
+  };
+
+  const handleConfirmWholeDay = () => {
+    if (!pendingWholeDay) return;
+    const { text, type } = pendingWholeDay;
+
+    // Save to custom categories
+    const key = type === 'drains' ? 'whole_day_drains' : 'whole_day_boosts';
+    const existing = customCategories[key] || [];
     setCustomCategories({
       ...customCategories,
       [key]: [...existing, text],
     });
 
-    setError('');
-    clearField();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    // Auto-check in all three time blocks
+    if (type === 'drains') {
+      onEntryChange({
+        custom_drain: '',
+        morning_drains: entry.morning_drains.includes(text) ? entry.morning_drains : [...entry.morning_drains, text],
+        afternoon_drains: entry.afternoon_drains.includes(text) ? entry.afternoon_drains : [...entry.afternoon_drains, text],
+        evening_drains: entry.evening_drains.includes(text) ? entry.evening_drains : [...entry.evening_drains, text],
+      });
+      setWholeDrainSaved(true);
+      setTimeout(() => setWholeDrainSaved(false), 2000);
+    } else {
+      onEntryChange({
+        custom_boost: '',
+        morning_boosts: entry.morning_boosts.includes(text) ? entry.morning_boosts : [...entry.morning_boosts, text],
+        afternoon_boosts: entry.afternoon_boosts.includes(text) ? entry.afternoon_boosts : [...entry.afternoon_boosts, text],
+        evening_boosts: entry.evening_boosts.includes(text) ? entry.evening_boosts : [...entry.evening_boosts, text],
+      });
+      setWholeBoostSaved(true);
+      setTimeout(() => setWholeBoostSaved(false), 2000);
+    }
+
+    setPendingWholeDay(null);
+  };
+
+  const handleCancelWholeDay = () => {
+    setPendingWholeDay(null);
   };
 
   return (
@@ -132,7 +167,7 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
                 <button
                   type="button"
                   disabled={wholeDrainSaved}
-                  onClick={() => handleSaveWholeDayCategory(entry.custom_drain, 'drains', setWholeDrainSaved, () => onEntryChange({ custom_drain: '' }), setWholeDrainError)}
+                  onClick={() => initiateWholeDaySave(entry.custom_drain, 'drains', setWholeDrainError)}
                   className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors text-white"
                   style={{ background: wholeDrainSaved ? 'var(--boost-accent)' : 'var(--accent)' }}
                   title="Save as permanent category"
@@ -159,7 +194,7 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
                 <button
                   type="button"
                   disabled={wholeBoostSaved}
-                  onClick={() => handleSaveWholeDayCategory(entry.custom_boost, 'boosts', setWholeBoostSaved, () => onEntryChange({ custom_boost: '' }), setWholeBoostError)}
+                  onClick={() => initiateWholeDaySave(entry.custom_boost, 'boosts', setWholeBoostError)}
                   className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors text-white"
                   style={{ background: wholeBoostSaved ? 'var(--boost-accent)' : 'var(--accent)' }}
                   title="Save as permanent category"
@@ -174,6 +209,43 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
           </div>
         </div>
       </div>
+
+      {/* Whole-day confirmation modal */}
+      {pendingWholeDay && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="rounded-lg p-6 max-w-md w-full bg-bg-primary">
+            <h3 className="text-lg font-semibold mb-3 text-text-primary">
+              Apply to Whole Day?
+            </h3>
+
+            <p className="mb-4 text-text-secondary">
+              &ldquo;{pendingWholeDay.text}&rdquo; will be saved and automatically checked
+              in <strong>all time blocks</strong> (morning, afternoon, and evening).
+            </p>
+
+            <p className="text-sm mb-6 text-text-tertiary">
+              You can uncheck it in specific time blocks if needed.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleConfirmWholeDay}
+                className="flex-1 px-4 py-2 rounded-lg font-medium text-white bg-accent-rich hover:brightness-90"
+              >
+                Apply to All
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelWholeDay}
+                className="flex-1 px-4 py-2 rounded-lg font-medium bg-bg-tertiary text-text-primary hover:brightness-95"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
