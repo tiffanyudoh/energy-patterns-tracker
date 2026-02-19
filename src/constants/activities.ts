@@ -10,6 +10,19 @@ export const PREDEFINED_DRAINS = [
   'Meeting overload',
 ] as const;
 
+// Display labels with clarifying examples for ambiguous drains
+// Keys are the stored values, values are the UI labels
+export const DRAIN_DISPLAY_LABELS: Partial<Record<string, string>> = {
+  'Administrative tasks': 'Administrative tasks (bills, paperwork, calls)',
+  'Coordination tasks': 'Coordination tasks (scheduling, planning, organizing)',
+  'Household maintenance': 'Household maintenance (repairs, cleaning, errands)',
+};
+
+// Get the display label for a drain, falling back to the stored value
+export function getDrainDisplayLabel(drain: string): string {
+  return DRAIN_DISPLAY_LABELS[drain] ?? drain;
+}
+
 // Predefined energy boosts (from spec 1.2)
 export const PREDEFINED_BOOSTS = [
   'Morning coffee alone',

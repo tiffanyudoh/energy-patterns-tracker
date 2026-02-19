@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TimeBlock as TimeBlockType } from '@/types';
-import { PREDEFINED_DRAINS, PREDEFINED_BOOSTS, TIME_BLOCK_LABELS } from '@/constants/activities';
+import { PREDEFINED_DRAINS, PREDEFINED_BOOSTS, TIME_BLOCK_LABELS, getDrainDisplayLabel } from '@/constants/activities';
 
 interface TimeBlockProps {
   timeBlock: TimeBlockType;
@@ -103,7 +103,7 @@ export function TimeBlock({
                     onChange={() => toggleDrain(drain)}
                     className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                   />
-                  <span className="text-sm text-gray-700">{drain}</span>
+                  <span className="text-sm text-gray-700">{getDrainDisplayLabel(drain)}</span>
                 </label>
               ))}
             </div>
