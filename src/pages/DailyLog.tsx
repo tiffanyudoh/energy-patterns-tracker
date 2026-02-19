@@ -3,7 +3,9 @@ import { FocusBanner } from '@/components/FocusBanner';
 import { DailyEntryForm } from '@/components/DailyEntryForm';
 import { DailyEntryCard } from '@/components/DailyEntryCard';
 import { CalendarPicker } from '@/components/CalendarPicker';
+import { WeekStrip } from '@/components/WeekStrip';
 import { useDailyEntry } from '@/hooks/useDailyEntry';
+import { useAppContext } from '@/context/AppContext';
 import {
   getTodayDate,
   formatDisplayDate,
@@ -29,6 +31,7 @@ interface DailyLogProps {
  * - Read-only vs edit mode switching
  */
 export function DailyLog({ onAnalyze }: DailyLogProps) {
+  const { state } = useAppContext();
   const [currentDate, setCurrentDate] = useState(getTodayDate());
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -155,6 +158,13 @@ export function DailyLog({ onAnalyze }: DailyLogProps) {
           </div>
         </div>
 
+        {/* Week strip with entry indicators */}
+        <WeekStrip
+          selectedDate={currentDate}
+          onSelectDate={setCurrentDate}
+          entries={state.entries}
+        />
+
         {/* Main content - Edit mode or Read-only */}
         {isEditMode ? (
           <DailyEntryForm
@@ -186,6 +196,7 @@ export function DailyLog({ onAnalyze }: DailyLogProps) {
           selectedDate={currentDate}
           onDateSelect={setCurrentDate}
           onClose={() => setShowCalendar(false)}
+          entries={state.entries}
         />
       )}
     </div>

@@ -13,11 +13,13 @@ import {
   isAfter,
   subDays,
 } from 'date-fns';
+import { DailyEntry } from '@/types';
 
 interface CalendarPickerProps {
   selectedDate: string; // YYYY-MM-DD
   onDateSelect: (date: string) => void;
   onClose: () => void;
+  entries: Record<string, DailyEntry>;
 }
 
 /**
@@ -30,12 +32,16 @@ export function CalendarPicker({
   selectedDate,
   onDateSelect,
   onClose,
+  entries,
 }: CalendarPickerProps) {
   const today = new Date();
   const thirtyDaysAgo = subDays(today, 30);
-  const selected = new Date(selectedDate);
 
-  const [currentMonth, setCurrentMonth] = useState(startOfMonth(selected));
+  // Parse selectedDate as local date (noon) to avoid UTC midnight timezone shift
+  const [year, month, day] = selectedDate.split('-').map(Number);
+  const selectedLocal = new Date(year, month - 1, day, 12, 0, 0);
+
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(selectedLocal));
 
   // Generate calendar grid
   const calendarDays = useMemo(() => {
@@ -142,10 +148,12 @@ export function CalendarPicker({
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((date, index) => {
-            const isSelected = isSameDay(date, selected);
+            const dateString = format(date, 'yyyy-MM-dd');
+            const isSelected = dateString === selectedDate;
             const isToday = isSameDay(date, today);
             const isCurrentMonth = isSameMonth(date, currentMonth);
             const disabled = isDateDisabled(date);
+            const hasEntry = dateString in entries;
 
             return (
               <button
@@ -154,14 +162,21 @@ export function CalendarPicker({
                 onClick={() => handleDateClick(date)}
                 disabled={disabled}
                 className={`
-                  p-2 text-sm rounded-lg transition-colors
+                  relative p-2 text-sm rounded-lg transition-colors
                   ${!isCurrentMonth ? 'text-gray-300' : ''}
                   ${disabled ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
-                  ${isSelected ? 'bg-gray-800 text-white hover:bg-gray-700' : ''}
-                  ${isToday && !isSelected ? 'border border-gray-400' : ''}
+                  ${isSelected ? 'bg-accent-rich text-white hover:brightness-90' : ''}
+                  ${isToday && !isSelected ? 'ring-1 ring-accent' : ''}
+                  ${hasEntry && !isSelected && !disabled && isCurrentMonth ? 'bg-bg-secondary font-semibold text-text-primary' : ''}
                 `}
               >
                 {format(date, 'd')}
+                {hasEntry && !disabled && isCurrentMonth && (
+                  <span
+                    className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-accent-rich'}`}
+                    aria-hidden="true"
+                  />
+                )}
               </button>
             );
           })}
