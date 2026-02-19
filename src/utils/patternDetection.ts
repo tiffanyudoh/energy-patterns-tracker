@@ -203,58 +203,58 @@ export function detectDrainPatterns(entries: DailyEntry[]): PatternInfo[] {
 }
 
 // ============================================================================
-// TASK 2.3: Restorer Pattern Detection
+// TASK 2.3: Boost Pattern Detection
 // ============================================================================
 
 /**
- * Extract all restorers from a single entry (all time blocks + custom fields)
+ * Extract all boosts from a single entry (all time blocks + custom fields)
  */
-function extractAllRestorers(entry: DailyEntry): Array<{ activity: string; energy: number }> {
-  const restorers: Array<{ activity: string; energy: number }> = [];
+function extractAllBoosts(entry: DailyEntry): Array<{ activity: string; energy: number }> {
+  const boosts: Array<{ activity: string; energy: number }> = [];
   const energy = entry.energy_score;
 
-  // Morning restorers
-  entry.morning_restorers.forEach((r) => restorers.push({ activity: r, energy }));
-  if (entry.morning_custom_restorer.trim()) {
-    restorers.push({ activity: entry.morning_custom_restorer.trim(), energy });
+  // Morning boosts
+  entry.morning_boosts.forEach((r) => boosts.push({ activity: r, energy }));
+  if (entry.morning_custom_boost.trim()) {
+    boosts.push({ activity: entry.morning_custom_boost.trim(), energy });
   }
 
-  // Afternoon restorers
-  entry.afternoon_restorers.forEach((r) => restorers.push({ activity: r, energy }));
-  if (entry.afternoon_custom_restorer.trim()) {
-    restorers.push({ activity: entry.afternoon_custom_restorer.trim(), energy });
+  // Afternoon boosts
+  entry.afternoon_boosts.forEach((r) => boosts.push({ activity: r, energy }));
+  if (entry.afternoon_custom_boost.trim()) {
+    boosts.push({ activity: entry.afternoon_custom_boost.trim(), energy });
   }
 
-  // Evening restorers
-  entry.evening_restorers.forEach((r) => restorers.push({ activity: r, energy }));
-  if (entry.evening_custom_restorer.trim()) {
-    restorers.push({ activity: entry.evening_custom_restorer.trim(), energy });
+  // Evening boosts
+  entry.evening_boosts.forEach((r) => boosts.push({ activity: r, energy }));
+  if (entry.evening_custom_boost.trim()) {
+    boosts.push({ activity: entry.evening_custom_boost.trim(), energy });
   }
 
-  // Whole-day custom restorer
-  if (entry.custom_restorer.trim()) {
-    restorers.push({ activity: entry.custom_restorer.trim(), energy });
+  // Whole-day custom boost
+  if (entry.custom_boost.trim()) {
+    boosts.push({ activity: entry.custom_boost.trim(), energy });
   }
 
-  return restorers;
+  return boosts;
 }
 
 /**
- * Detect top 2 restorer patterns from weekly data (Spec 2.3)
+ * Detect top 2 boost patterns from weekly data (Spec 2.3)
  *
- * Same logic as drain detection but for restorers
+ * Same logic as drain detection but for boosts
  */
-export function detectRestorerPatterns(entries: DailyEntry[]): PatternInfo[] {
-  // Collect all restorers with their energy scores
-  const allRestorers: Array<{ activity: string; energy: number }> = [];
+export function detectBoostPatterns(entries: DailyEntry[]): PatternInfo[] {
+  // Collect all boosts with their energy scores
+  const allBoosts: Array<{ activity: string; energy: number }> = [];
   for (const entry of entries) {
-    allRestorers.push(...extractAllRestorers(entry));
+    allBoosts.push(...extractAllBoosts(entry));
   }
 
   // Group by activity (case-insensitive)
   const grouped = new Map<string, { originalName: string; energyScores: number[] }>();
 
-  for (const { activity, energy } of allRestorers) {
+  for (const { activity, energy } of allBoosts) {
     const key = activity.toLowerCase();
     if (!grouped.has(key)) {
       grouped.set(key, { originalName: activity, energyScores: [] });

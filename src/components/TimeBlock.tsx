@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { TimeBlock as TimeBlockType } from '@/types';
-import { PREDEFINED_DRAINS, PREDEFINED_RESTORERS, TIME_BLOCK_LABELS } from '@/constants/activities';
+import { PREDEFINED_DRAINS, PREDEFINED_BOOSTS, TIME_BLOCK_LABELS } from '@/constants/activities';
 
 interface TimeBlockProps {
   timeBlock: TimeBlockType;
   selectedDrains: string[];
-  selectedRestorers: string[];
+  selectedBoosts: string[];
   customDrain: string;
-  customRestorer: string;
+  customBoost: string;
   onDrainsChange: (drains: string[]) => void;
-  onRestorersChange: (restorers: string[]) => void;
+  onBoostsChange: (boosts: string[]) => void;
   onCustomDrainChange: (value: string) => void;
-  onCustomRestorerChange: (value: string) => void;
+  onCustomBoostChange: (value: string) => void;
   defaultExpanded?: boolean;
 }
 
@@ -19,25 +19,25 @@ interface TimeBlockProps {
  * Collapsible Time Block Component (Spec 1.2)
  *
  * - Collapsible section for Morning/Afternoon/Evening
- * - Multi-select checkboxes for drains and restorers
+ * - Multi-select checkboxes for drains and boosts
  * - Custom text fields for time-specific custom entries
  */
 export function TimeBlock({
   timeBlock,
   selectedDrains,
-  selectedRestorers,
+  selectedBoosts,
   customDrain,
-  customRestorer,
+  customBoost,
   onDrainsChange,
-  onRestorersChange,
+  onBoostsChange,
   onCustomDrainChange,
-  onCustomRestorerChange,
+  onCustomBoostChange,
   defaultExpanded = false,
 }: TimeBlockProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const label = TIME_BLOCK_LABELS[timeBlock];
-  const totalSelected = selectedDrains.length + selectedRestorers.length;
+  const totalSelected = selectedDrains.length + selectedBoosts.length;
 
   const toggleDrain = (drain: string) => {
     if (selectedDrains.includes(drain)) {
@@ -47,11 +47,11 @@ export function TimeBlock({
     }
   };
 
-  const toggleRestorer = (restorer: string) => {
-    if (selectedRestorers.includes(restorer)) {
-      onRestorersChange(selectedRestorers.filter((r) => r !== restorer));
+  const toggleBoost = (boost: string) => {
+    if (selectedBoosts.includes(boost)) {
+      onBoostsChange(selectedBoosts.filter((r) => r !== boost));
     } else {
-      onRestorersChange([...selectedRestorers, restorer]);
+      onBoostsChange([...selectedBoosts, boost]);
     }
   };
 
@@ -117,32 +117,32 @@ export function TimeBlock({
             />
           </div>
 
-          {/* Restorers section */}
+          {/* Boosts section */}
           <div>
             <h4 className="text-sm font-medium text-gray-700 mb-2">
-              What restored your energy?
+              What boosted your energy?
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {PREDEFINED_RESTORERS.map((restorer) => (
+              {PREDEFINED_BOOSTS.map((boost) => (
                 <label
-                  key={restorer}
+                  key={boost}
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <input
                     type="checkbox"
-                    checked={selectedRestorers.includes(restorer)}
-                    onChange={() => toggleRestorer(restorer)}
+                    checked={selectedBoosts.includes(boost)}
+                    onChange={() => toggleBoost(boost)}
                     className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                   />
-                  <span className="text-sm text-gray-700">{restorer}</span>
+                  <span className="text-sm text-gray-700">{boost}</span>
                 </label>
               ))}
             </div>
             <input
               type="text"
-              placeholder="Other restorers..."
-              value={customRestorer}
-              onChange={(e) => onCustomRestorerChange(e.target.value)}
+              placeholder="Other boosts..."
+              value={customBoost}
+              onChange={(e) => onCustomBoostChange(e.target.value)}
               maxLength={200}
               className="mt-2 w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
             />

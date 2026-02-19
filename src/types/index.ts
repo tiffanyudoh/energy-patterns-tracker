@@ -4,25 +4,25 @@ export interface DailyEntry {
   energy_score: number; // 1-10
   morning_drains: string[];
   morning_custom_drain: string;
-  morning_restorers: string[];
-  morning_custom_restorer: string;
+  morning_boosts: string[];
+  morning_custom_boost: string;
   afternoon_drains: string[];
   afternoon_custom_drain: string;
-  afternoon_restorers: string[];
-  afternoon_custom_restorer: string;
+  afternoon_boosts: string[];
+  afternoon_custom_boost: string;
   evening_drains: string[];
   evening_custom_drain: string;
-  evening_restorers: string[];
-  evening_custom_restorer: string;
+  evening_boosts: string[];
+  evening_custom_boost: string;
   custom_drain: string; // Whole-day custom
-  custom_restorer: string; // Whole-day custom
+  custom_boost: string; // Whole-day custom
 }
 
 // Weekly Focus Schema (for Phase 3)
 export interface WeeklyFocus {
   focus_id: string;
   focus_text: string;
-  focus_type: 'drain_reduce' | 'restorer_increase' | 'cognitive_load';
+  focus_type: 'drain_reduce' | 'boost_increase' | 'cognitive_load';
   pattern_name: string;
   start_date: string; // YYYY-MM-DD
   end_date: string; // YYYY-MM-DD (start + 7 days)
@@ -54,17 +54,17 @@ export function createEmptyEntry(date: string): DailyEntry {
     energy_score: 5, // Default to middle
     morning_drains: [],
     morning_custom_drain: '',
-    morning_restorers: [],
-    morning_custom_restorer: '',
+    morning_boosts: [],
+    morning_custom_boost: '',
     afternoon_drains: [],
     afternoon_custom_drain: '',
-    afternoon_restorers: [],
-    afternoon_custom_restorer: '',
+    afternoon_boosts: [],
+    afternoon_custom_boost: '',
     evening_drains: [],
     evening_custom_drain: '',
-    evening_restorers: [],
-    evening_custom_restorer: '',
+    evening_boosts: [],
+    evening_custom_boost: '',
     custom_drain: '',
-    custom_restorer: '',
+    custom_boost: '',
   };
 }

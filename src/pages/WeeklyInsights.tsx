@@ -4,7 +4,7 @@ import { InsightCards } from '@/components/InsightCard';
 import {
   getWeeklyData,
   detectDrainPatterns,
-  detectRestorerPatterns,
+  detectBoostPatterns,
   detectCognitiveLoad,
   getCognitiveLoadStats,
   WeeklyData,
@@ -39,7 +39,7 @@ type AnalysisState =
  *
  * Shows weekly pattern analysis:
  * - Weekly summary with battery and trend
- * - Insight cards for drains, restorers, cognitive load
+ * - Insight cards for drains, boosts, cognitive load
  * - Generated experiments for each pattern
  */
 type WeekView = 'current' | 'previous';
@@ -72,13 +72,13 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
 
     // Analyze current week
     const currentDrainPatterns = detectDrainPatterns(weeklyData.entries);
-    const currentRestorerPatterns = detectRestorerPatterns(weeklyData.entries);
+    const currentBoostPatterns = detectBoostPatterns(weeklyData.entries);
     const currentCognitiveLoad = detectCognitiveLoad(weeklyData.entries);
     const currentCognitiveStats = getCognitiveLoadStats(weeklyData.entries);
 
     const currentExperiments = generateAllExperiments(
       currentDrainPatterns,
-      currentRestorerPatterns,
+      currentBoostPatterns,
       currentCognitiveLoad,
       weeklyData.entries
     );
@@ -94,13 +94,13 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
 
     if (weeklyData.previous_week_days_logged >= 3) {
       const prevDrainPatterns = detectDrainPatterns(weeklyData.previous_week_entries);
-      const prevRestorerPatterns = detectRestorerPatterns(weeklyData.previous_week_entries);
+      const prevBoostPatterns = detectBoostPatterns(weeklyData.previous_week_entries);
       const prevCognitiveLoad = detectCognitiveLoad(weeklyData.previous_week_entries);
       const prevCognitiveStats = getCognitiveLoadStats(weeklyData.previous_week_entries);
 
       const prevExperiments = generateAllExperiments(
         prevDrainPatterns,
-        prevRestorerPatterns,
+        prevBoostPatterns,
         prevCognitiveLoad,
         weeklyData.previous_week_entries
       );
@@ -243,7 +243,7 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
                 />
                 <InsightCards
                   drainSuggestions={analysisState.current.experiments.drains}
-                  restorerSuggestions={analysisState.current.experiments.restorers}
+                  boostSuggestions={analysisState.current.experiments.boosts}
                   cognitiveLoadSuggestion={analysisState.current.experiments.cognitiveLoad}
                   cognitiveLoadComparison={
                     analysisState.previous
@@ -267,7 +267,7 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
                 />
                 <InsightCards
                   drainSuggestions={analysisState.previous.experiments.drains}
-                  restorerSuggestions={analysisState.previous.experiments.restorers}
+                  boostSuggestions={analysisState.previous.experiments.boosts}
                   cognitiveLoadSuggestion={analysisState.previous.experiments.cognitiveLoad}
                 />
               </>

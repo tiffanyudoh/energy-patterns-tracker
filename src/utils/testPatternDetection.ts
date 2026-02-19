@@ -6,7 +6,7 @@
 import { DailyEntry, createEmptyEntry } from '../types';
 import {
   detectDrainPatterns,
-  detectRestorerPatterns,
+  detectBoostPatterns,
   detectCognitiveLoad,
 } from './patternDetection';
 import {
@@ -56,15 +56,15 @@ function createTestData(): DailyEntry[] {
   // Day 6: Morning coffee alone (morning), Reading (evening), energy 7
   const day6 = createEmptyEntry('2026-02-13');
   day6.energy_score = 7;
-  day6.morning_restorers = ['Morning coffee alone'];
-  day6.evening_restorers = ['Reading'];
+  day6.morning_boosts = ['Morning coffee alone'];
+  day6.evening_boosts = ['Reading'];
   entries.push(day6);
 
   // Day 7: Email catch-up (morning), Morning coffee alone (morning), admin tasks, energy 5
   const day7 = createEmptyEntry('2026-02-14');
   day7.energy_score = 5;
   day7.morning_drains = ['Email catch-up', 'Administrative tasks'];
-  day7.morning_restorers = ['Morning coffee alone'];
+  day7.morning_boosts = ['Morning coffee alone'];
   entries.push(day7);
 
   return entries;
@@ -77,7 +77,7 @@ console.log('='.repeat(60));
 
 const testEntries = createTestData();
 
-console.log('\n📊 TEST DATA SUMMARY:');
+console.log('\nTEST DATA SUMMARY:');
 console.log(`Total entries: ${testEntries.length} days`);
 testEntries.forEach((entry) => {
   const allDrains = [
@@ -89,12 +89,12 @@ testEntries.forEach((entry) => {
     entry.evening_custom_drain,
     entry.custom_drain,
   ].filter(Boolean);
-  const allRestorers = [
-    ...entry.morning_restorers,
-    ...entry.afternoon_restorers,
-    ...entry.evening_restorers,
+  const allBoosts = [
+    ...entry.morning_boosts,
+    ...entry.afternoon_boosts,
+    ...entry.evening_boosts,
   ].filter(Boolean);
-  console.log(`  ${entry.date}: Energy ${entry.energy_score}, Drains: [${allDrains.join(', ')}], Restorers: [${allRestorers.join(', ')}]`);
+  console.log(`  ${entry.date}: Energy ${entry.energy_score}, Drains: [${allDrains.join(', ')}], Boosts: [${allBoosts.join(', ')}]`);
 });
 
 // Test drain detection
@@ -115,16 +115,16 @@ if (drainPatterns.length === 0) {
   });
 }
 
-// Test restorer detection
+// Test boost detection
 console.log('\n' + '='.repeat(60));
-console.log('RESTORER PATTERNS (Top 2)');
+console.log('BOOST PATTERNS (Top 2)');
 console.log('='.repeat(60));
 
-const restorerPatterns = detectRestorerPatterns(testEntries);
-if (restorerPatterns.length === 0) {
-  console.log('No restorer patterns detected (need frequency >= 2)');
+const boostPatterns = detectBoostPatterns(testEntries);
+if (boostPatterns.length === 0) {
+  console.log('No boost patterns detected (need frequency >= 2)');
 } else {
-  restorerPatterns.forEach((pattern, i) => {
+  boostPatterns.forEach((pattern, i) => {
     console.log(`\n${i + 1}. ${pattern.activity}`);
     console.log(`   Frequency: ${pattern.frequency}`);
     console.log(`   Avg Energy: ${pattern.avg_energy}`);
@@ -161,7 +161,7 @@ console.log('='.repeat(60));
 
 // Analyze time blocks for top drain
 if (drainPatterns.length > 0) {
-  console.log('\n📍 Time Block Analysis for "' + drainPatterns[0].activity + '":');
+  console.log('\nTime Block Analysis for "' + drainPatterns[0].activity + '":');
   const timeAnalysis = analyzeTimeBlocks(drainPatterns[0].activity, testEntries);
   console.log(`   Morning: ${timeAnalysis.morning}`);
   console.log(`   Afternoon: ${timeAnalysis.afternoon}`);
@@ -173,12 +173,12 @@ if (drainPatterns.length > 0) {
 // Generate all experiments
 const experiments = generateAllExperiments(
   drainPatterns,
-  restorerPatterns,
+  boostPatterns,
   cognitiveLoad,
   testEntries
 );
 
-console.log('\n🔴 DRAIN EXPERIMENTS:');
+console.log('\nDRAIN EXPERIMENTS:');
 if (experiments.drains.length === 0) {
   console.log('   No drain experiments generated');
 } else {
@@ -189,18 +189,18 @@ if (experiments.drains.length === 0) {
   });
 }
 
-console.log('\n🟢 RESTORER EXPERIMENTS:');
-if (experiments.restorers.length === 0) {
-  console.log('   No restorer experiments generated');
+console.log('\nBOOST EXPERIMENTS:');
+if (experiments.boosts.length === 0) {
+  console.log('   No boost experiments generated');
 } else {
-  experiments.restorers.forEach((exp, i) => {
+  experiments.boosts.forEach((exp, i) => {
     console.log(`\n${i + 1}. ${exp.activity} — ${exp.confidence}`);
     console.log(`   Strategy: ${exp.strategy}`);
     console.log(`   Experiment: "${exp.experiment}"`);
   });
 }
 
-console.log('\n⚠️  COGNITIVE LOAD EXPERIMENT:');
+console.log('\nCOGNITIVE LOAD EXPERIMENT:');
 if (!experiments.cognitiveLoad) {
   console.log('   No cognitive load experiment generated');
 } else {

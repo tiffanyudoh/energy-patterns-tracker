@@ -69,7 +69,7 @@ export function WeeklySummary({
             <span
               className={`font-medium ${
                 trend.symbol === '↑'
-                  ? 'text-restorer-accent'
+                  ? 'text-boost-accent'
                   : trend.symbol === '↓'
                   ? 'text-drain-accent'
                   : 'text-accent'

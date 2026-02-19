@@ -14,8 +14,8 @@ interface InsightCardProps {
  *
  * Three card types:
  * 1. DRAIN CARD - "What's draining your energy?"
- * 2. RESTORER CARD - "What's restoring your energy?"
- * 3. COGNITIVE LOAD CARD - "⚠️ What's draining your energy?"
+ * 2. BOOST CARD - "What's boosting your energy?"
+ * 3. COGNITIVE LOAD CARD - "Cognitive Load"
  *
  * Styling: Compact, friendly, minimal
  */
@@ -33,19 +33,19 @@ export function InsightCard({ suggestion, previousWeekComparison }: InsightCardP
           badgeBg: 'bg-drain-accent/15',
           linkColor: 'text-accent-rich',
         };
-      case 'restorer':
+      case 'boost':
         return {
-          cardClass: 'bg-bg-secondary border-l-4 border-l-restorer-accent border border-accent-light/50 shadow-[0_1px_3px_rgba(107,68,68,0.08)]',
-          headerColor: 'text-restorer-accent',
-          header: "What's restoring your energy?",
-          badgeBg: 'bg-restorer-accent/15',
+          cardClass: 'bg-bg-secondary border-l-4 border-l-boost-accent border border-accent-light/50 shadow-[0_1px_3px_rgba(107,68,68,0.08)]',
+          headerColor: 'text-boost-accent',
+          header: "What's boosting your energy?",
+          badgeBg: 'bg-boost-accent/15',
           linkColor: 'text-accent-rich',
         };
       case 'cognitive_load':
         return {
           cardClass: 'bg-bg-secondary border-l-4 border-l-accent-rich border border-accent-light/50 shadow-[0_1px_3px_rgba(107,68,68,0.08)]',
           headerColor: 'text-accent-rich',
-          header: "⚠️ Cognitive Load",
+          header: "Cognitive Load",
           badgeBg: 'bg-accent-rich/15',
           linkColor: 'text-accent-rich',
         };
@@ -97,7 +97,7 @@ export function InsightCard({ suggestion, previousWeekComparison }: InsightCardP
                 ↑ Up from {previousWeekComparison.prevFrequency}x last week
               </span>
             ) : previousWeekComparison.currentFrequency < previousWeekComparison.prevFrequency ? (
-              <span className="text-restorer-accent">
+              <span className="text-boost-accent">
                 ↓ Down from {previousWeekComparison.prevFrequency}x last week
               </span>
             ) : (
@@ -124,7 +124,7 @@ export function InsightCard({ suggestion, previousWeekComparison }: InsightCardP
  */
 interface InsightCardsProps {
   drainSuggestions: ExperimentSuggestion[];
-  restorerSuggestions: ExperimentSuggestion[];
+  boostSuggestions: ExperimentSuggestion[];
   cognitiveLoadSuggestion: ExperimentSuggestion | null;
   cognitiveLoadComparison?: {
     currentStats: CognitiveLoadStats;
@@ -134,7 +134,7 @@ interface InsightCardsProps {
 
 export function InsightCards({
   drainSuggestions,
-  restorerSuggestions,
+  boostSuggestions,
   cognitiveLoadSuggestion,
   cognitiveLoadComparison,
 }: InsightCardsProps) {
@@ -153,9 +153,9 @@ export function InsightCards({
         <InsightCard key={`drain-${index}`} suggestion={suggestion} />
       ))}
 
-      {/* Top restorer card (max 1) */}
-      {restorerSuggestions.slice(0, 1).map((suggestion, index) => (
-        <InsightCard key={`restorer-${index}`} suggestion={suggestion} />
+      {/* Top boost card (max 1) */}
+      {boostSuggestions.slice(0, 1).map((suggestion, index) => (
+        <InsightCard key={`boost-${index}`} suggestion={suggestion} />
       ))}
 
       {/* Cognitive load card - always shown */}
@@ -168,9 +168,9 @@ export function InsightCards({
         <CognitiveLoadWithinLimitsCard comparison={cognitiveLoadComparison} />
       )}
 
-      {/* Empty state if no drain/restorer patterns detected */}
+      {/* Empty state if no drain/boost patterns detected */}
       {drainSuggestions.length === 0 &&
-        restorerSuggestions.length === 0 && (
+        boostSuggestions.length === 0 && (
           <div className="text-center py-8 text-text-secondary">
             <p>No significant patterns detected yet.</p>
             <p className="text-sm mt-1">
@@ -197,14 +197,14 @@ function CognitiveLoadWithinLimitsCard({ comparison }: CognitiveLoadWithinLimits
   const prevFreq = comparison?.previousStats.frequency ?? 0;
 
   return (
-    <div className="bg-bg-secondary border-l-4 border-l-restorer-accent border border-accent-light/50 rounded-lg p-4 shadow-[0_1px_3px_rgba(107,68,68,0.08)]">
-      <h3 className="text-sm font-semibold text-restorer-accent mb-2">
+    <div className="bg-bg-secondary border-l-4 border-l-boost-accent border border-accent-light/50 rounded-lg p-4 shadow-[0_1px_3px_rgba(107,68,68,0.08)]">
+      <h3 className="text-sm font-semibold text-boost-accent mb-2">
         ✓ Cognitive Load
       </h3>
       <div className="mb-3">
         <div className="flex items-center gap-2">
           <span className="font-medium text-text-primary">Within normal limits</span>
-          <span className="bg-restorer-accent/15 text-text-primary px-2 py-0.5 rounded-xl text-xs font-medium">
+          <span className="bg-boost-accent/15 text-text-primary px-2 py-0.5 rounded-xl text-xs font-medium">
             Healthy
           </span>
         </div>
@@ -212,7 +212,7 @@ function CognitiveLoadWithinLimitsCard({ comparison }: CognitiveLoadWithinLimits
         {comparison && prevFreq > 0 && (
           <div className="mt-2 text-sm">
             {currentFreq < prevFreq ? (
-              <span className="text-restorer-accent">
+              <span className="text-boost-accent">
                 ↓ Down from {prevFreq} coordination tasks last week
               </span>
             ) : currentFreq > prevFreq ? (

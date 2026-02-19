@@ -12,7 +12,7 @@ interface TimeBlockSectionProps {
  *
  * - Morning, Afternoon, Evening collapsible blocks
  * - Auto-expands current time block based on system time
- * - Whole-day custom drain/restorer fields below all blocks
+ * - Whole-day custom drain/boost fields below all blocks
  * - Total: 8 custom text fields (6 time-specific + 2 whole-day)
  */
 export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps) {
@@ -24,35 +24,35 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
       case 'morning':
         return {
           selectedDrains: entry.morning_drains,
-          selectedRestorers: entry.morning_restorers,
+          selectedBoosts: entry.morning_boosts,
           customDrain: entry.morning_custom_drain,
-          customRestorer: entry.morning_custom_restorer,
+          customBoost: entry.morning_custom_boost,
           onDrainsChange: (drains: string[]) => onEntryChange({ morning_drains: drains }),
-          onRestorersChange: (restorers: string[]) => onEntryChange({ morning_restorers: restorers }),
+          onBoostsChange: (boosts: string[]) => onEntryChange({ morning_boosts: boosts }),
           onCustomDrainChange: (value: string) => onEntryChange({ morning_custom_drain: value }),
-          onCustomRestorerChange: (value: string) => onEntryChange({ morning_custom_restorer: value }),
+          onCustomBoostChange: (value: string) => onEntryChange({ morning_custom_boost: value }),
         };
       case 'afternoon':
         return {
           selectedDrains: entry.afternoon_drains,
-          selectedRestorers: entry.afternoon_restorers,
+          selectedBoosts: entry.afternoon_boosts,
           customDrain: entry.afternoon_custom_drain,
-          customRestorer: entry.afternoon_custom_restorer,
+          customBoost: entry.afternoon_custom_boost,
           onDrainsChange: (drains: string[]) => onEntryChange({ afternoon_drains: drains }),
-          onRestorersChange: (restorers: string[]) => onEntryChange({ afternoon_restorers: restorers }),
+          onBoostsChange: (boosts: string[]) => onEntryChange({ afternoon_boosts: boosts }),
           onCustomDrainChange: (value: string) => onEntryChange({ afternoon_custom_drain: value }),
-          onCustomRestorerChange: (value: string) => onEntryChange({ afternoon_custom_restorer: value }),
+          onCustomBoostChange: (value: string) => onEntryChange({ afternoon_custom_boost: value }),
         };
       case 'evening':
         return {
           selectedDrains: entry.evening_drains,
-          selectedRestorers: entry.evening_restorers,
+          selectedBoosts: entry.evening_boosts,
           customDrain: entry.evening_custom_drain,
-          customRestorer: entry.evening_custom_restorer,
+          customBoost: entry.evening_custom_boost,
           onDrainsChange: (drains: string[]) => onEntryChange({ evening_drains: drains }),
-          onRestorersChange: (restorers: string[]) => onEntryChange({ evening_restorers: restorers }),
+          onBoostsChange: (boosts: string[]) => onEntryChange({ evening_boosts: boosts }),
           onCustomDrainChange: (value: string) => onEntryChange({ evening_custom_drain: value }),
-          onCustomRestorerChange: (value: string) => onEntryChange({ evening_custom_restorer: value }),
+          onCustomBoostChange: (value: string) => onEntryChange({ evening_custom_boost: value }),
         };
     }
   };
@@ -85,9 +85,9 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
           />
           <input
             type="text"
-            placeholder="Other restorers not listed above..."
-            value={entry.custom_restorer}
-            onChange={(e) => onEntryChange({ custom_restorer: e.target.value })}
+            placeholder="Other boosts not listed above..."
+            value={entry.custom_boost}
+            onChange={(e) => onEntryChange({ custom_boost: e.target.value })}
             maxLength={200}
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
           />

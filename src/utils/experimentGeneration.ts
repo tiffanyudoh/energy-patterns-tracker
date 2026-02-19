@@ -34,7 +34,7 @@ export interface ExperimentSuggestion {
   confidence: string;
   strategy: ExperimentStrategy;
   experiment: string;
-  type: 'drain' | 'restorer' | 'cognitive_load';
+  type: 'drain' | 'boost' | 'cognitive_load';
 }
 
 export interface TimeBlockAnalysis {
@@ -63,9 +63,9 @@ export function analyzeTimeBlocks(
     // Check morning
     if (
       entry.morning_drains.some((d) => d.toLowerCase() === activityLower) ||
-      entry.morning_restorers.some((r) => r.toLowerCase() === activityLower) ||
+      entry.morning_boosts.some((r) => r.toLowerCase() === activityLower) ||
       entry.morning_custom_drain.toLowerCase().includes(activityLower) ||
-      entry.morning_custom_restorer.toLowerCase().includes(activityLower)
+      entry.morning_custom_boost.toLowerCase().includes(activityLower)
     ) {
       counts.morning++;
     }
@@ -73,9 +73,9 @@ export function analyzeTimeBlocks(
     // Check afternoon
     if (
       entry.afternoon_drains.some((d) => d.toLowerCase() === activityLower) ||
-      entry.afternoon_restorers.some((r) => r.toLowerCase() === activityLower) ||
+      entry.afternoon_boosts.some((r) => r.toLowerCase() === activityLower) ||
       entry.afternoon_custom_drain.toLowerCase().includes(activityLower) ||
-      entry.afternoon_custom_restorer.toLowerCase().includes(activityLower)
+      entry.afternoon_custom_boost.toLowerCase().includes(activityLower)
     ) {
       counts.afternoon++;
     }
@@ -83,9 +83,9 @@ export function analyzeTimeBlocks(
     // Check evening
     if (
       entry.evening_drains.some((d) => d.toLowerCase() === activityLower) ||
-      entry.evening_restorers.some((r) => r.toLowerCase() === activityLower) ||
+      entry.evening_boosts.some((r) => r.toLowerCase() === activityLower) ||
       entry.evening_custom_drain.toLowerCase().includes(activityLower) ||
-      entry.evening_custom_restorer.toLowerCase().includes(activityLower)
+      entry.evening_custom_boost.toLowerCase().includes(activityLower)
     ) {
       counts.evening++;
     }
@@ -273,13 +273,13 @@ export function generateDrainExperimentSuggestion(
 }
 
 // ============================================================================
-// Restorer Experiment Generation
+// Boost Experiment Generation
 // ============================================================================
 
 /**
- * Select best strategy for a restorer pattern
+ * Select best strategy for a boost pattern
  */
-function selectRestorerStrategy(
+function selectBoostStrategy(
   pattern: PatternInfo,
   _timeAnalysis: TimeBlockAnalysis,
   topDrain: PatternInfo | null
@@ -310,9 +310,9 @@ function selectRestorerStrategy(
 }
 
 /**
- * Generate experiment text for a restorer pattern
+ * Generate experiment text for a boost pattern
  */
-function generateRestorerExperiment(
+function generateBoostExperiment(
   pattern: PatternInfo,
   strategy: ExperimentStrategy,
   topDrain: PatternInfo | null
@@ -339,23 +339,23 @@ function generateRestorerExperiment(
 }
 
 /**
- * Generate experiment for a restorer pattern
+ * Generate experiment for a boost pattern
  */
-export function generateRestorerExperimentSuggestion(
+export function generateBoostExperimentSuggestion(
   pattern: PatternInfo,
   entries: DailyEntry[],
   topDrain: PatternInfo | null = null
 ): ExperimentSuggestion {
   const timeAnalysis = analyzeTimeBlocks(pattern.activity, entries);
-  const strategy = selectRestorerStrategy(pattern, timeAnalysis, topDrain);
-  const experiment = generateRestorerExperiment(pattern, strategy, topDrain);
+  const strategy = selectBoostStrategy(pattern, timeAnalysis, topDrain);
+  const experiment = generateBoostExperiment(pattern, strategy, topDrain);
 
   return {
     activity: pattern.activity,
     confidence: pattern.confidence,
     strategy,
     experiment,
-    type: 'restorer',
+    type: 'boost',
   };
 }
 
@@ -406,7 +406,7 @@ export function generateCognitiveLoadExperimentSuggestion(
 
 export interface AllExperiments {
   drains: ExperimentSuggestion[];
-  restorers: ExperimentSuggestion[];
+  boosts: ExperimentSuggestion[];
   cognitiveLoad: ExperimentSuggestion | null;
 }
 
@@ -415,7 +415,7 @@ export interface AllExperiments {
  */
 export function generateAllExperiments(
   drainPatterns: PatternInfo[],
-  restorerPatterns: PatternInfo[],
+  boostPatterns: PatternInfo[],
   cognitiveLoad: CognitiveLoadResult | null,
   entries: DailyEntry[]
 ): AllExperiments {
@@ -424,10 +424,10 @@ export function generateAllExperiments(
     generateDrainExperimentSuggestion(pattern, entries)
   );
 
-  // Generate restorer experiments (pass top drain for potential pairing)
+  // Generate boost experiments (pass top drain for potential pairing)
   const topDrain = drainPatterns[0] || null;
-  const restorerExperiments = restorerPatterns.map((pattern) =>
-    generateRestorerExperimentSuggestion(pattern, entries, topDrain)
+  const boostExperiments = boostPatterns.map((pattern) =>
+    generateBoostExperimentSuggestion(pattern, entries, topDrain)
   );
 
   // Generate cognitive load experiment
@@ -437,7 +437,7 @@ export function generateAllExperiments(
 
   return {
     drains: drainExperiments,
-    restorers: restorerExperiments,
+    boosts: boostExperiments,
     cognitiveLoad: cognitiveLoadExperiment,
   };
 }

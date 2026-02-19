@@ -10,8 +10,8 @@ export const PREDEFINED_DRAINS = [
   'Meeting overload',
 ] as const;
 
-// Predefined energy restorers (from spec 1.2)
-export const PREDEFINED_RESTORERS = [
+// Predefined energy boosts (from spec 1.2)
+export const PREDEFINED_BOOSTS = [
   'Morning coffee alone',
   'Focused work block',
   'Reading',

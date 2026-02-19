@@ -10,9 +10,9 @@ interface DailyEntryCardProps {
 interface TimeBlockDisplayProps {
   label: string;
   drains: string[];
-  restorers: string[];
+  boosts: string[];
   customDrain: string;
-  customRestorer: string;
+  customBoost: string;
 }
 
 /**
@@ -21,12 +21,12 @@ interface TimeBlockDisplayProps {
 function TimeBlockDisplay({
   label,
   drains,
-  restorers,
+  boosts,
   customDrain,
-  customRestorer,
+  customBoost,
 }: TimeBlockDisplayProps) {
   const hasDrains = drains.length > 0 || customDrain.trim();
-  const hasRestorers = restorers.length > 0 || customRestorer.trim();
+  const hasBoosts = boosts.length > 0 || customBoost.trim();
 
   return (
     <div className="space-y-2">
@@ -48,15 +48,15 @@ function TimeBlockDisplay({
         )}
       </div>
 
-      {/* Restorers */}
+      {/* Boosts */}
       <div className="text-sm">
-        <span className="text-text-secondary">Restorers: </span>
-        {hasRestorers ? (
+        <span className="text-text-secondary">Boosts: </span>
+        {hasBoosts ? (
           <span className="text-text-primary">
-            {restorers.join(', ')}
-            {restorers.length > 0 && customRestorer.trim() && ', '}
-            {customRestorer.trim() && (
-              <span className="italic text-text-secondary">"{customRestorer.trim()}"</span>
+            {boosts.join(', ')}
+            {boosts.length > 0 && customBoost.trim() && ', '}
+            {customBoost.trim() && (
+              <span className="italic text-text-secondary">"{customBoost.trim()}"</span>
             )}
           </span>
         ) : (
@@ -77,7 +77,7 @@ function TimeBlockDisplay({
  * - Edit button to switch to form mode
  */
 export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
-  const hasWholeDayNotes = entry.custom_drain.trim() || entry.custom_restorer.trim();
+  const hasWholeDayNotes = entry.custom_drain.trim() || entry.custom_boost.trim();
 
   return (
     <div className="space-y-6">
@@ -95,9 +95,9 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
         <TimeBlockDisplay
           label={TIME_BLOCK_LABELS.morning}
           drains={entry.morning_drains}
-          restorers={entry.morning_restorers}
+          boosts={entry.morning_boosts}
           customDrain={entry.morning_custom_drain}
-          customRestorer={entry.morning_custom_restorer}
+          customBoost={entry.morning_custom_boost}
         />
 
         <hr className="border-accent-light/50" />
@@ -106,9 +106,9 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
         <TimeBlockDisplay
           label={TIME_BLOCK_LABELS.afternoon}
           drains={entry.afternoon_drains}
-          restorers={entry.afternoon_restorers}
+          boosts={entry.afternoon_boosts}
           customDrain={entry.afternoon_custom_drain}
-          customRestorer={entry.afternoon_custom_restorer}
+          customBoost={entry.afternoon_custom_boost}
         />
 
         <hr className="border-accent-light/50" />
@@ -117,9 +117,9 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
         <TimeBlockDisplay
           label={TIME_BLOCK_LABELS.evening}
           drains={entry.evening_drains}
-          restorers={entry.evening_restorers}
+          boosts={entry.evening_boosts}
           customDrain={entry.evening_custom_drain}
-          customRestorer={entry.evening_custom_restorer}
+          customBoost={entry.evening_custom_boost}
         />
 
         {/* Whole-day notes (if any) */}
@@ -136,11 +136,11 @@ export function DailyEntryCard({ entry, onEdit }: DailyEntryCardProps) {
                   </span>
                 </div>
               )}
-              {entry.custom_restorer.trim() && (
+              {entry.custom_boost.trim() && (
                 <div className="text-sm">
-                  <span className="text-text-secondary">Restorers: </span>
+                  <span className="text-text-secondary">Boosts: </span>
                   <span className="text-text-secondary italic">
-                    "{entry.custom_restorer.trim()}"
+                    "{entry.custom_boost.trim()}"
                   </span>
                 </div>
               )}

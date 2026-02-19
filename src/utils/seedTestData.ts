@@ -5,7 +5,7 @@
  * This creates 7 days of test entries that will trigger:
  * - Top drain: Email catch-up (Strong pattern)
  * - 2nd drain: Coordination tasks (Weak signal)
- * - Top restorer: Morning coffee alone (Weak signal)
+ * - Top boost: Morning coffee alone (Weak signal)
  * - Cognitive load: Detected (coordination keywords)
  */
 
@@ -55,15 +55,15 @@ function createTestEntries(): Record<string, DailyEntry> {
   day5.energy_score = 4;
   day5.morning_drains = ['Email catch-up'];
   day5.afternoon_drains = ['Email catch-up'];
-  day5.evening_restorers = ['Reading'];
+  day5.evening_boosts = ['Reading'];
   entries[day5Date] = day5;
 
   // Day 6 (1 day ago): Morning coffee, Reading, energy 7
   const day6Date = format(subDays(today, 1), 'yyyy-MM-dd');
   const day6 = createEmptyEntry(day6Date);
   day6.energy_score = 7;
-  day6.morning_restorers = ['Morning coffee alone'];
-  day6.evening_restorers = ['Reading'];
+  day6.morning_boosts = ['Morning coffee alone'];
+  day6.evening_boosts = ['Reading'];
   entries[day6Date] = day6;
 
   // Day 7 (today): Email, Morning coffee, energy 5
@@ -71,7 +71,7 @@ function createTestEntries(): Record<string, DailyEntry> {
   const day7 = createEmptyEntry(day7Date);
   day7.energy_score = 5;
   day7.morning_drains = ['Email catch-up'];
-  day7.morning_restorers = ['Morning coffee alone'];
+  day7.morning_boosts = ['Morning coffee alone'];
   entries[day7Date] = day7;
 
   return entries;
@@ -91,22 +91,22 @@ console.log('='.repeat(70));
 console.log('EXPECTED RESULTS');
 console.log('='.repeat(70));
 
-console.log('\n📊 WEEKLY SUMMARY:');
+console.log('\nWEEKLY SUMMARY:');
 const energyScores = Object.values(testEntries).map(e => e.energy_score);
 const avgEnergy = energyScores.reduce((a, b) => a + b, 0) / energyScores.length;
 console.log(`  Days logged: ${Object.keys(testEntries).length}`);
 console.log(`  Average energy: ${avgEnergy.toFixed(1)}/10`);
 console.log(`  Trend: (no previous week data)`);
 
-console.log('\n🔴 DRAIN PATTERNS:');
+console.log('\nDRAIN PATTERNS:');
 console.log('  1. Email catch-up - frequency: 8, Strong pattern');
 console.log('  2. Coordination tasks - frequency: 2, Weak signal');
 
-console.log('\n🟢 RESTORER PATTERNS:');
+console.log('\nBOOST PATTERNS:');
 console.log('  1. Morning coffee alone - frequency: 2, Weak signal');
 console.log('  2. Reading - frequency: 2, Weak signal');
 
-console.log('\n⚠️  COGNITIVE LOAD:');
+console.log('\nCOGNITIVE LOAD:');
 console.log('  Detected: Yes (coordination, scheduling, planning, admin keywords)');
 
 console.log('\n' + '='.repeat(70));
@@ -122,10 +122,10 @@ Object.entries(testEntries).forEach(([date, entry]) => {
     entry.afternoon_custom_drain,
     entry.custom_drain,
   ].filter(Boolean);
-  const restorers = [
-    ...entry.morning_restorers,
-    ...entry.afternoon_restorers,
-    ...entry.evening_restorers,
+  const boosts = [
+    ...entry.morning_boosts,
+    ...entry.afternoon_boosts,
+    ...entry.evening_boosts,
   ].filter(Boolean);
-  console.log(`  ${date}: Energy ${entry.energy_score}, Drains: [${drains.join(', ')}], Restorers: [${restorers.join(', ')}]`);
+  console.log(`  ${date}: Energy ${entry.energy_score}, Drains: [${drains.join(', ')}], Boosts: [${boosts.join(', ')}]`);
 });

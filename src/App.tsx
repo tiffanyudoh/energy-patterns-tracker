@@ -18,7 +18,7 @@ type View = 'daily' | 'insights' | 'settings';
  * - Date navigation
  *
  * Phase 2: Weekly Pattern Analysis
- * - Pattern detection (drains, restorers, cognitive load)
+ * - Pattern detection (drains, boosts, cognitive load)
  * - Experiment generation
  * - Weekly summary and insight cards
  */

@@ -34,7 +34,7 @@
   /* Card Accent Colors */
   --accent-rich: #6B4444;
   --drain-accent: #C07850;
-  --restorer-accent: #7A9B6E;
+  --boost-accent: #7A9B6E;
 }
 
 /* Tailwind v4 theme extension */
@@ -56,7 +56,7 @@
 
   --color-accent-rich: var(--accent-rich);
   --color-drain-accent: var(--drain-accent);
-  --color-restorer-accent: var(--restorer-accent);
+  --color-boost-accent: var(--boost-accent);
 }
 
 body {

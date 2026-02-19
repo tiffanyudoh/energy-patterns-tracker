@@ -7,7 +7,7 @@ import { DailyEntry, createEmptyEntry } from '../types';
 import { PatternInfo, CognitiveLoadResult } from './patternDetection';
 import {
   generateDrainExperimentSuggestion,
-  generateRestorerExperimentSuggestion,
+  generateBoostExperimentSuggestion,
   generateCognitiveLoadExperimentSuggestion,
   analyzeTimeBlocks,
 } from './experimentGeneration';
@@ -31,11 +31,11 @@ function createTestEntries(): DailyEntry[] {
   // Day 7: Morning coffee with high energy
   const day7 = createEmptyEntry('2026-02-14');
   day7.energy_score = 7;
-  day7.morning_restorers = ['Morning coffee alone'];
+  day7.morning_boosts = ['Morning coffee alone'];
   entries.push(day7);
 
   // Day 6 also had coffee (sporadic pattern)
-  entries[5].evening_restorers = ['Morning coffee alone'];
+  entries[5].evening_boosts = ['Morning coffee alone'];
   entries[5].energy_score = 7;
 
   // Add cognitive load activities across multiple days
@@ -56,7 +56,7 @@ const drainPattern: PatternInfo = {
   confidence: 'Strong pattern',
 };
 
-const restorerPattern: PatternInfo = {
+const boostPattern: PatternInfo = {
   activity: 'Morning coffee alone',
   frequency: 2,
   avg_energy: 7.0,
@@ -99,35 +99,35 @@ console.log(`  Most Common: ${timeAnalysis.mostCommon}`);
 console.log(`  Scattered: ${timeAnalysis.isScattered}`);
 
 const drainExperiment = generateDrainExperimentSuggestion(drainPattern, testEntries);
-console.log('\n✅ Generated Experiment:');
+console.log('\nGenerated Experiment:');
 console.log(`  Strategy: ${drainExperiment.strategy}`);
 console.log(`  \n  "${drainExperiment.experiment}"`);
 
-// Test 2: Restorer Pattern
+// Test 2: Boost Pattern
 console.log('\n' + '-'.repeat(70));
-console.log('TEST 2: RESTORER PATTERN');
+console.log('TEST 2: BOOST PATTERN');
 console.log('-'.repeat(70));
 console.log('\nInput Pattern:');
-console.log(`  Activity: ${restorerPattern.activity}`);
-console.log(`  Frequency: ${restorerPattern.frequency}`);
-console.log(`  Avg Energy: ${restorerPattern.avg_energy}`);
-console.log(`  Confidence: ${restorerPattern.confidence}`);
+console.log(`  Activity: ${boostPattern.activity}`);
+console.log(`  Frequency: ${boostPattern.frequency}`);
+console.log(`  Avg Energy: ${boostPattern.avg_energy}`);
+console.log(`  Confidence: ${boostPattern.confidence}`);
 
-const restorerTimeAnalysis = analyzeTimeBlocks(restorerPattern.activity, testEntries);
+const boostTimeAnalysis = analyzeTimeBlocks(boostPattern.activity, testEntries);
 console.log('\nTime Block Analysis:');
-console.log(`  Morning: ${restorerTimeAnalysis.morning}`);
-console.log(`  Afternoon: ${restorerTimeAnalysis.afternoon}`);
-console.log(`  Evening: ${restorerTimeAnalysis.evening}`);
-console.log(`  Sporadic: ${restorerTimeAnalysis.isScattered ? 'Yes' : 'No'}`);
+console.log(`  Morning: ${boostTimeAnalysis.morning}`);
+console.log(`  Afternoon: ${boostTimeAnalysis.afternoon}`);
+console.log(`  Evening: ${boostTimeAnalysis.evening}`);
+console.log(`  Sporadic: ${boostTimeAnalysis.isScattered ? 'Yes' : 'No'}`);
 
-const restorerExperiment = generateRestorerExperimentSuggestion(
-  restorerPattern,
+const boostExperiment = generateBoostExperimentSuggestion(
+  boostPattern,
   testEntries,
   drainPattern // Pass top drain for potential pairing
 );
-console.log('\n✅ Generated Experiment:');
-console.log(`  Strategy: ${restorerExperiment.strategy}`);
-console.log(`  \n  "${restorerExperiment.experiment}"`);
+console.log('\nGenerated Experiment:');
+console.log(`  Strategy: ${boostExperiment.strategy}`);
+console.log(`  \n  "${boostExperiment.experiment}"`);
 
 // Test 3: Cognitive Load Pattern
 console.log('\n' + '-'.repeat(70));
@@ -141,7 +141,7 @@ console.log(`  Confidence: ${cognitiveLoadPattern.confidence}`);
 console.log(`  Activities: ${cognitiveLoadPattern.specific_activities.join(', ')}`);
 
 const cognitiveExperiment = generateCognitiveLoadExperimentSuggestion(cognitiveLoadPattern);
-console.log('\n✅ Generated Experiment:');
+console.log('\nGenerated Experiment:');
 console.log(`  Strategy: ${cognitiveExperiment.strategy}`);
 console.log(`  \n  "${cognitiveExperiment.experiment}"`);
 
