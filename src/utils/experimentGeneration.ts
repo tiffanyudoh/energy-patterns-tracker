@@ -24,8 +24,10 @@ export type ExperimentStrategy =
   | 'buffering'
   | 'reducing_frequency'
   | 'delegating'
+  | 'templating'
   | 'schedule_it'
   | 'protect_it'
+  | 'optimize_it'
   | 'increase_frequency'
   | 'pair_it';
 
@@ -107,30 +109,12 @@ export function analyzeTimeBlocks(
 }
 
 /**
- * Get suggested duration based on frequency
- */
-function getSuggestedDuration(frequency: number): string {
-  if (frequency >= 7) return '30-minute';
-  if (frequency >= 5) return '20-30 minute';
-  return '15-20 minute';
-}
-
-/**
  * Get suggested reduced frequency
  */
 function getSuggestedReduction(frequency: number): string {
   if (frequency >= 7) return '4-5 times';
   if (frequency >= 5) return '3-4 times';
   return '2-3 times';
-}
-
-/**
- * Get suggested increased frequency
- */
-function getSuggestedIncrease(frequency: number): string {
-  if (frequency <= 2) return '3-4 times';
-  if (frequency <= 4) return '5-6 times';
-  return 'daily';
 }
 
 /**
@@ -193,30 +177,31 @@ function selectDrainStrategy(
   const { frequency, avg_energy } = pattern;
   const { isScattered } = timeAnalysis;
 
-  // High frequency (≥5)
-  if (frequency >= 5) {
+  // High frequency (≥6)
+  if (frequency >= 6) {
     if (!isScattered) {
-      return 'batching'; // Concentrated in one time block
+      return 'batching'; // Concentrated in one time block → batch into fewer sessions
     } else {
-      return 'time_shifting'; // Scattered across blocks
+      return 'time_shifting'; // Scattered across blocks → consolidate to best time
     }
   }
 
-  // Medium frequency (3-4)
-  if (frequency >= 3) {
-    if (avg_energy < 4) {
-      return 'buffering'; // Low energy impact - needs recovery
-    } else {
-      return 'reducing_frequency';
-    }
+  // Medium frequency (3-5) with low energy → needs recovery buffer
+  if (frequency >= 3 && avg_energy <= 4) {
+    return 'buffering';
   }
 
-  // Check if coordination/admin type for delegation
+  // Coordination/admin type at any frequency → template/automate
   if (isCoordinationType(pattern.activity)) {
-    return 'delegating';
+    return 'templating';
   }
 
-  // Default to buffering for lower frequency drains
+  // Medium frequency (3-5) with moderate energy → reduce
+  if (frequency >= 3) {
+    return 'reducing_frequency';
+  }
+
+  // Low frequency (2) → buffer after
   return 'buffering';
 }
 
@@ -228,27 +213,31 @@ function generateDrainExperiment(
   strategy: ExperimentStrategy,
   timeAnalysis: TimeBlockAnalysis
 ): string {
-  const { activity, frequency } = pattern;
+  const { activity, frequency, avg_energy } = pattern;
+  const name = activity.toLowerCase();
   const { mostCommon } = timeAnalysis;
 
   switch (strategy) {
     case 'batching':
-      return `Consider batching ${activity.toLowerCase()} into one ${getSuggestedDuration(frequency)} block during the ${getTimeLabel(mostCommon)} instead of handling it ${frequency} times throughout the week.`;
+      return `Consider consolidating ${name} into 2-3 focused blocks (e.g., Monday, Wednesday, Friday during the ${getTimeLabel(mostCommon)}) instead of handling it ${frequency} times across the week.`;
 
     case 'time_shifting':
-      return `Worth trying: Move ${activity.toLowerCase()} to ${getBetterTimeSlot(mostCommon)}.`;
+      return `Worth trying: ${name} happens throughout the day when energy varies. Consider consolidating to ${getBetterTimeSlot(mostCommon)} to reduce cumulative drain.`;
 
     case 'buffering':
-      return `Consider adding a 10-15 minute restorative break right after ${activity.toLowerCase()} to recover energy.`;
+      return `${name} significantly drains energy (${avg_energy}/10 average). Consider adding a 10-15 minute restoration break immediately after (e.g., short walk, coffee, quiet time).`;
 
     case 'reducing_frequency':
-      return `Worth trying: Reduce ${activity.toLowerCase()} from ${frequency} times to ${getSuggestedReduction(frequency)} per week.`;
+      return `Worth trying: Reduce ${name} from ${frequency} times to ${getSuggestedReduction(frequency)} per week. Delegate, defer, or eliminate where possible.`;
+
+    case 'templating':
+      return `Worth exploring: Create checklists or templates for ${name} to reduce cognitive load, or batch all coordination tasks into one weekly "command center" session.`;
 
     case 'delegating':
-      return `Worth exploring: Identify parts of ${activity.toLowerCase()} that could be handled by someone else or automated.`;
+      return `Worth exploring: Identify parts of ${name} that could be handled by someone else or automated.`;
 
     default:
-      return `Consider experimenting with how you approach ${activity.toLowerCase()} to reduce its energy impact.`;
+      return `Consider experimenting with how you approach ${name} to reduce its energy impact.`;
   }
 }
 
@@ -286,27 +275,27 @@ function selectBoostStrategy(
 ): ExperimentStrategy {
   const { frequency, avg_energy } = pattern;
 
-  // High energy impact (avg > 7) - do more of it
-  if (avg_energy > 7) {
-    return 'increase_frequency';
+  // High frequency (≥6) — don't suggest increasing
+  if (frequency >= 6) {
+    if (avg_energy >= 7) {
+      return 'protect_it'; // Working well, guard it
+    }
+    return 'optimize_it'; // High frequency but underwhelming — go deeper, not wider
   }
 
-  // Low frequency - schedule it
-  if (frequency < 3) {
-    // If there's a common drain, suggest pairing
+  // Medium frequency (4-5) — pair with drains for energy buffering
+  if (frequency >= 4) {
     if (topDrain && topDrain.frequency >= 3) {
       return 'pair_it';
     }
-    return 'schedule_it';
-  }
-
-  // Medium frequency but inconsistent - protect it
-  if (frequency >= 3 && frequency <= 5) {
     return 'protect_it';
   }
 
-  // Default to increasing frequency
-  return 'increase_frequency';
+  // Low frequency (2-3) — schedule with specifics
+  if (topDrain && topDrain.frequency >= 3) {
+    return 'pair_it';
+  }
+  return 'schedule_it';
 }
 
 /**
@@ -315,26 +304,34 @@ function selectBoostStrategy(
 function generateBoostExperiment(
   pattern: PatternInfo,
   strategy: ExperimentStrategy,
+  timeAnalysis: TimeBlockAnalysis,
   topDrain: PatternInfo | null
 ): string {
   const { activity, frequency } = pattern;
+  const name = activity.toLowerCase();
 
   switch (strategy) {
-    case 'schedule_it':
-      return `Worth trying: Block ${activity.toLowerCase()} on your calendar as a recurring ${getSuggestedIncrease(frequency)} commitment.`;
-
     case 'protect_it':
-      return `Consider protecting ${activity.toLowerCase()} time by setting boundaries (e.g., phone on Do Not Disturb, closing your door).`;
+      return `Worth protecting: ${name} ${frequency} times per week is working well. Consider blocking this as non-negotiable time and guarding against interruptions.`;
 
-    case 'increase_frequency':
-      return `Consider increasing ${activity.toLowerCase()} from ${frequency} times to ${getSuggestedIncrease(frequency)} per week.`;
+    case 'optimize_it':
+      return `Worth trying: Consider deeper sessions of ${name} (e.g., 45 min 3x/week instead of shorter ${frequency}x/week) for more restoration per session.`;
 
-    case 'pair_it':
+    case 'pair_it': {
       const drainName = topDrain ? topDrain.activity.toLowerCase() : 'draining activities';
-      return `Worth trying: Schedule ${activity.toLowerCase()} right after ${drainName} to create an energy buffer.`;
+      return `Worth trying: Schedule 15 min of ${name} right after ${drainName} to create an energy buffer.`;
+    }
+
+    case 'schedule_it': {
+      const timeLabel = getTimeLabel(timeAnalysis.mostCommon);
+      const suggestedDays = frequency <= 2
+        ? 'Tuesday and Thursday'
+        : 'Monday, Wednesday, and Friday';
+      return `Worth trying: Add ${name} 2-3 more times this week. Consider blocking ${suggestedDays} during the ${timeLabel} when you typically have capacity.`;
+    }
 
     default:
-      return `Consider making more time for ${activity.toLowerCase()} in your weekly routine.`;
+      return `Consider making more time for ${name} in your weekly routine.`;
   }
 }
 
@@ -348,7 +345,7 @@ export function generateBoostExperimentSuggestion(
 ): ExperimentSuggestion {
   const timeAnalysis = analyzeTimeBlocks(pattern.activity, entries);
   const strategy = selectBoostStrategy(pattern, timeAnalysis, topDrain);
-  const experiment = generateBoostExperiment(pattern, strategy, topDrain);
+  const experiment = generateBoostExperiment(pattern, strategy, timeAnalysis, topDrain);
 
   return {
     activity: pattern.activity,
@@ -389,7 +386,7 @@ export function generateCognitiveLoadExperimentSuggestion(
   // Suggest a day (Sunday is common for weekly planning)
   const suggestedDay = 'Sunday evening or Monday morning';
 
-  const experiment = `Consider batching ${activityList} into one ${duration} "command center" session on ${suggestedDay} instead of handling them as they arise throughout the week.`;
+  const experiment = `Consider batching ${activityList} into one ${duration} "command center" session on ${suggestedDay}. Use a checklist to offload mental tracking between sessions.`;
 
   return {
     activity: 'Background Cognitive Load',
