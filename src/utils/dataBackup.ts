@@ -1,3 +1,5 @@
+import { markBackupComplete } from './backupReminder';
+
 export function exportData(): boolean {
   try {
     const allData: Record<string, unknown> = {};
@@ -35,6 +37,8 @@ export function exportData(): boolean {
     // Android Chrome ignores the download attribute filename for blob URLs,
     // generating a UUID filename instead. Data URI approach preserves it.
     const isAndroid = /Android/i.test(navigator.userAgent);
+
+    markBackupComplete();
 
     if (isAndroid) {
       const reader = new FileReader();
