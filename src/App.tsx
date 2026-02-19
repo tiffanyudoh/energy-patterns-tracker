@@ -3,8 +3,9 @@ import { AppProvider } from '@/context/AppContext';
 import { Layout } from '@/components/Layout';
 import { DailyLog } from '@/pages/DailyLog';
 import { WeeklyInsights } from '@/pages/WeeklyInsights';
+import { Settings } from '@/pages/Settings';
 
-type View = 'daily' | 'insights';
+type View = 'daily' | 'insights' | 'settings';
 
 /**
  * Energy Patterns Tracker - Main App Component
@@ -26,12 +27,15 @@ function App() {
 
   return (
     <AppProvider>
-      <Layout>
+      <Layout onSettingsClick={() => setCurrentView('settings')}>
         {currentView === 'daily' && (
           <DailyLog onAnalyze={() => setCurrentView('insights')} />
         )}
         {currentView === 'insights' && (
           <WeeklyInsights onBack={() => setCurrentView('daily')} />
+        )}
+        {currentView === 'settings' && (
+          <Settings onBack={() => setCurrentView('daily')} />
         )}
       </Layout>
     </AppProvider>
