@@ -311,6 +311,7 @@ export function detectBoostPatterns(entries: DailyEntry[]): PatternInfo[] {
 
 // Keywords to detect cognitive load (case-insensitive, partial match)
 const COGNITIVE_LOAD_KEYWORDS = [
+  // Original
   'coordination',
   'scheduling',
   'planning',
@@ -326,6 +327,60 @@ const COGNITIVE_LOAD_KEYWORDS = [
   'decision fatigue',
   'interruption',
   'family obligations',
+
+  // Decision-making
+  'deciding',
+  'figuring out',
+  'thinking through',
+  'weighing options',
+  'choosing',
+  'determining',
+  'considering',
+  'evaluating',
+
+  // Anticipatory labor
+  'preparing for',
+  'getting ready',
+  'planning ahead',
+  'setting up',
+  'arranging',
+  'lining up',
+
+  // Emotional labor
+  'checking in',
+  'managing feelings',
+  'handling reactions',
+  'dealing with',
+  'smoothing over',
+  'mediating',
+  'navigating',
+  'supporting',
+
+  // Executive function
+  'remembering to',
+  'tracking',
+  'keeping track',
+  'following up',
+  'monitoring',
+  'overseeing',
+  'making sure',
+  'ensuring',
+
+  // Mental load
+  'worrying about',
+  'thinking about',
+  'mental list',
+  "can't forget",
+  'on my mind',
+  'need to remember',
+  'have to handle',
+
+  // Logistics
+  'logistics',
+  'arrangements',
+  'appointments',
+  'syncing',
+  'aligning',
 ];
 
 /**
