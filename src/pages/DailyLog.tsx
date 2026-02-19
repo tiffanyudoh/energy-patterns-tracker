@@ -33,7 +33,7 @@ interface DailyLogProps {
  * - Read-only vs edit mode switching
  */
 export function DailyLog({ onAnalyze }: DailyLogProps) {
-  const { state } = useAppContext();
+  const { state, showWeekStrip } = useAppContext();
   const [currentDate, setCurrentDate] = useState(getTodayDate());
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -206,11 +206,13 @@ export function DailyLog({ onAnalyze }: DailyLogProps) {
         </div>
 
         {/* Week strip with entry indicators */}
-        <WeekStrip
-          selectedDate={currentDate}
-          onSelectDate={setCurrentDate}
-          entries={state.entries}
-        />
+        {showWeekStrip && (
+          <WeekStrip
+            selectedDate={currentDate}
+            onSelectDate={setCurrentDate}
+            entries={state.entries}
+          />
+        )}
 
         {/* Main content - Edit mode or Read-only */}
         {isEditMode ? (

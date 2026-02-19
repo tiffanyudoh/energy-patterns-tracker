@@ -6,12 +6,14 @@ import {
   importDataMerge,
   clearAllData,
 } from '@/utils/dataBackup';
+import { useAppContext } from '@/context/AppContext';
 
 interface SettingsProps {
   onBack: () => void;
 }
 
 export function Settings({ onBack }: SettingsProps) {
+  const { showWeekStrip, setShowWeekStrip } = useAppContext();
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -127,6 +129,45 @@ export function Settings({ onBack }: SettingsProps) {
             {message.text}
           </div>
         )}
+
+        {/* Display Preferences */}
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold mb-4 text-text-primary">
+            Display Preferences
+          </h2>
+
+          <div
+            className="p-6 rounded-lg bg-bg-secondary"
+            style={{ borderLeft: '2px solid var(--accent)' }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold mb-1 text-text-primary">
+                  Show Week Strip
+                </h3>
+                <p className="text-sm text-text-secondary">
+                  Display 7-day strip at top of daily log. When hidden, use arrows and calendar to navigate.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showWeekStrip}
+                onClick={() => setShowWeekStrip(!showWeekStrip)}
+                className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200"
+                style={{ background: showWeekStrip ? 'var(--accent-rich)' : 'var(--bg-tertiary)' }}
+              >
+                <span
+                  className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition-transform duration-200"
+                  style={{
+                    transform: showWeekStrip ? 'translate(22px, 2px)' : 'translate(2px, 2px)',
+                  }}
+                />
+              </button>
+            </div>
+          </div>
+        </section>
 
         {/* Data Management Section */}
         <section className="mb-8">

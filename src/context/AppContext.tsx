@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
 import { AppState, DailyEntry, WeeklyFocus } from '@/types';
 import {
   getAppState,
@@ -61,6 +61,8 @@ const initialState: AppState = {
 interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
+  showWeekStrip: boolean;
+  setShowWeekStrip: (value: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -70,8 +72,19 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
+const SHOW_WEEK_STRIP_KEY = 'show_week_strip';
+
 export function AppProvider({ children }: AppProviderProps) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const [showWeekStrip, setShowWeekStripState] = useState(() => {
+    const stored = localStorage.getItem(SHOW_WEEK_STRIP_KEY);
+    return stored !== null ? JSON.parse(stored) : true;
+  });
+
+  const setShowWeekStrip = (value: boolean) => {
+    setShowWeekStripState(value);
+    localStorage.setItem(SHOW_WEEK_STRIP_KEY, JSON.stringify(value));
+  };
 
   // Load persisted state on mount
   useEffect(() => {
@@ -80,7 +93,7 @@ export function AppProvider({ children }: AppProviderProps) {
   }, []);
 
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch, showWeekStrip, setShowWeekStrip }}>
       {children}
     </AppContext.Provider>
   );
