@@ -14,6 +14,8 @@ import {
   isDateToday,
   isDateFuture,
 } from '@/utils/dateUtils';
+import { shouldShowBackupReminder, getDaysLogged, dismissBackupReminder } from '@/utils/backupReminder';
+import { exportData } from '@/utils/dataBackup';
 
 interface DailyLogProps {
   onAnalyze?: () => void;
@@ -35,6 +37,11 @@ export function DailyLog({ onAnalyze }: DailyLogProps) {
   const [currentDate, setCurrentDate] = useState(getTodayDate());
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showBackupReminder, setShowBackupReminder] = useState(false);
+
+  useEffect(() => {
+    setShowBackupReminder(shouldShowBackupReminder());
+  }, []);
 
   const {
     entry,
@@ -97,6 +104,46 @@ export function DailyLog({ onAnalyze }: DailyLogProps) {
   return (
     <div className="min-h-screen bg-bg-primary">
       <div className="max-w-lg mx-auto px-4 py-6">
+        {/* Backup reminder banner */}
+        {showBackupReminder && (
+          <div
+            className="mb-4 p-4 rounded-lg bg-bg-secondary border-l-3 border-l-accent-rich"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <p className="font-semibold text-text-primary mb-1">
+                  Time to back up your data
+                </p>
+                <p className="text-sm text-text-secondary">
+                  You have {getDaysLogged()} days of entries. Create a backup to keep them safe.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    exportData();
+                    setShowBackupReminder(false);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-accent-rich text-white font-medium whitespace-nowrap hover:brightness-90"
+                >
+                  Backup Now
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    dismissBackupReminder();
+                    setShowBackupReminder(false);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-bg-tertiary text-text-primary font-medium whitespace-nowrap hover:brightness-95"
+                >
+                  Remind Later
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Focus banner placeholder */}
         <FocusBanner />
 
