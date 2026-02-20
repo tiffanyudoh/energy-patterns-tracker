@@ -74,6 +74,15 @@ localStorage data is per-origin. Export before clearing browser data.
 
 Built from comprehensive specs before coding. UX improvements came from actual usage: battery slider for faster mobile input, calendar highlighting to see logging patterns, timezone-safe date handling, "boosts" instead of "restorers" (less clunky).
 
+## Known Limitations
+
+### Backup Filenames
+- **Chrome/Safari:** Backups download with date-stamped filenames (e.g., `energy-tracker-backup-2026-02-19.json`)
+- **DuckDuckGo/Firefox:** May generate generic filenames due to browser privacy restrictions
+- **Workaround:** File contents are correct - simply rename after download, or use Chrome for backups
+
+Full cross-browser support for custom filenames planned for future release.
+
 Pattern detection prioritizes accuracy. All custom fields get scanned. Confidence levels use consistent thresholds. No false precision.
 
 ## What's Next 
@@ -81,6 +90,23 @@ Pattern detection prioritizes accuracy. All custom fields get scanned. Confidenc
 Next: expanded cognitive load detection (better keyword coverage), smarter frequency-aware experiment logic.
 
 Coming Soon: focus selection system to track which experiment you're trying and compare results week-over-week.
+
+## Future Enhancements
+
+### v1.4 - Enhanced Mobile Support
+- [ ] Web Share API for backup downloads (works across all mobile browsers)
+- [ ] Progressive Web App offline support
+- [ ] Better touch interactions for time blocks
+
+### Browser Compatibility Goals:
+- Chrome: ✅ Full support
+- Safari (iOS): ✅ Full support  
+- DuckDuckGo: 🟡 Works (generic filenames)
+- Firefox Mobile: 🟡 Works (generic filenames)
+- Samsung Internet: 🟡 Untested
+- Edge Mobile: 🟡 Untested
+
+Target: 100% feature parity across top 5 mobile browsers by v2.0
 
 ## Screenshots
 

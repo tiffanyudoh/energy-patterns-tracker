@@ -221,6 +221,9 @@ export function Settings({ onBack }: SettingsProps) {
             >
               Backup My Data
             </button>
+            <p className="text-xs mt-2 text-text-tertiary">
+              Note: Chrome shows date-stamped filenames. Other browsers (DuckDuckGo, Firefox) may use generic names - the file is correct, just rename after download.
+            </p>
           </div>
 
           {/* Import */}
