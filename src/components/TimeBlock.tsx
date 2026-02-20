@@ -87,6 +87,7 @@ export function TimeBlock({
     setSaved: (v: boolean) => void,
     clearField: () => void,
     setError: (v: string) => void,
+    autoCheck: (text: string) => void,
   ) => {
     const text = value.trim();
     if (!text) return;
@@ -109,6 +110,7 @@ export function TimeBlock({
       [key]: [...customCategories[key], text],
     });
 
+    autoCheck(text);
     setError('');
     clearField();
     setSaved(true);
@@ -178,6 +180,12 @@ export function TimeBlock({
                 placeholder="Other drains..."
                 value={customDrain}
                 onChange={(e) => { onCustomDrainChange(e.target.value); setDrainError(''); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (customDrain.trim()) handleSaveCategory(customDrain, drainsKey, customDrainsList, setDrainSaved, () => onCustomDrainChange(''), setDrainError, (text) => { if (!selectedDrains.includes(text)) onDrainsChange([...selectedDrains, text]); });
+                  }
+                }}
                 maxLength={200}
                 className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
@@ -185,7 +193,7 @@ export function TimeBlock({
                 <button
                   type="button"
                   disabled={drainSaved}
-                  onClick={() => handleSaveCategory(customDrain, drainsKey, customDrainsList, setDrainSaved, () => onCustomDrainChange(''), setDrainError)}
+                  onClick={() => handleSaveCategory(customDrain, drainsKey, customDrainsList, setDrainSaved, () => onCustomDrainChange(''), setDrainError, (text) => { if (!selectedDrains.includes(text)) onDrainsChange([...selectedDrains, text]); })}
                   className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors text-white"
                   style={{ background: drainSaved ? 'var(--boost-accent)' : 'var(--accent)' }}
                   title="Save as permanent category"
@@ -231,6 +239,12 @@ export function TimeBlock({
                 placeholder="Other boosts..."
                 value={customBoost}
                 onChange={(e) => { onCustomBoostChange(e.target.value); setBoostError(''); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (customBoost.trim()) handleSaveCategory(customBoost, boostsKey, customBoostsList, setBoostSaved, () => onCustomBoostChange(''), setBoostError, (text) => { if (!selectedBoosts.includes(text)) onBoostsChange([...selectedBoosts, text]); });
+                  }
+                }}
                 maxLength={200}
                 className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
@@ -238,7 +252,7 @@ export function TimeBlock({
                 <button
                   type="button"
                   disabled={boostSaved}
-                  onClick={() => handleSaveCategory(customBoost, boostsKey, customBoostsList, setBoostSaved, () => onCustomBoostChange(''), setBoostError)}
+                  onClick={() => handleSaveCategory(customBoost, boostsKey, customBoostsList, setBoostSaved, () => onCustomBoostChange(''), setBoostError, (text) => { if (!selectedBoosts.includes(text)) onBoostsChange([...selectedBoosts, text]); })}
                   className="px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors text-white"
                   style={{ background: boostSaved ? 'var(--boost-accent)' : 'var(--accent)' }}
                   title="Save as permanent category"

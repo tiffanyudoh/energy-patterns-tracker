@@ -160,6 +160,12 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
                 placeholder="Other drains not listed above..."
                 value={entry.custom_drain}
                 onChange={(e) => { onEntryChange({ custom_drain: e.target.value }); setWholeDrainError(''); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (entry.custom_drain.trim()) initiateWholeDaySave(entry.custom_drain, 'drains', setWholeDrainError);
+                  }
+                }}
                 maxLength={200}
                 className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
@@ -187,6 +193,12 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
                 placeholder="Other boosts not listed above..."
                 value={entry.custom_boost}
                 onChange={(e) => { onEntryChange({ custom_boost: e.target.value }); setWholeBoostError(''); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (entry.custom_boost.trim()) initiateWholeDaySave(entry.custom_boost, 'boosts', setWholeBoostError);
+                  }
+                }}
                 maxLength={200}
                 className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
@@ -212,7 +224,15 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
 
       {/* Whole-day confirmation modal */}
       {pendingWholeDay && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              handleCancelWholeDay();
+            }
+          }}
+        >
           <div className="rounded-lg p-6 max-w-md w-full bg-bg-primary">
             <h3 className="text-lg font-semibold mb-3 text-text-primary">
               Apply to Whole Day?
@@ -231,6 +251,7 @@ export function TimeBlockSection({ entry, onEntryChange }: TimeBlockSectionProps
               <button
                 type="button"
                 onClick={handleConfirmWholeDay}
+                autoFocus
                 className="flex-1 px-4 py-2 rounded-lg font-medium text-white bg-accent-rich hover:brightness-90"
               >
                 Apply to All

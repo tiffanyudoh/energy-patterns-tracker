@@ -7,14 +7,19 @@ import {
   clearAllData,
 } from '@/utils/dataBackup';
 import { useAppContext } from '@/context/AppContext';
+import { CustomCategories } from '@/types';
 
 interface SettingsProps {
   onBack: () => void;
 }
 
 export function Settings({ onBack }: SettingsProps) {
-  const { showWeekStrip, setShowWeekStrip } = useAppContext();
+  const { showWeekStrip, setShowWeekStrip, customCategories, setCustomCategories } = useAppContext();
   const [showImportModal, setShowImportModal] = useState(false);
+  const [pendingRemoval, setPendingRemoval] = useState<{
+    key: keyof CustomCategories;
+    value: string;
+  } | null>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [message, setMessage] = useState<{
@@ -74,6 +79,28 @@ export function Settings({ onBack }: SettingsProps) {
       setMessage({ type: 'error', text: 'Import failed. Please try again.' });
     }
   };
+
+  const handleRemoveCategory = () => {
+    if (!pendingRemoval) return;
+    const { key, value } = pendingRemoval;
+    const updated = (customCategories[key] || []).filter((c) => c !== value);
+    setCustomCategories({ ...customCategories, [key]: updated });
+    setPendingRemoval(null);
+    setMessage({ type: 'success', text: `Removed "${value}"` });
+  };
+
+  const CATEGORY_LABELS: Record<keyof CustomCategories, string> = {
+    morning_drains: 'Morning Drains',
+    morning_boosts: 'Morning Boosts',
+    afternoon_drains: 'Afternoon Drains',
+    afternoon_boosts: 'Afternoon Boosts',
+    evening_drains: 'Evening Drains',
+    evening_boosts: 'Evening Boosts',
+    whole_day_drains: 'Whole Day Drains',
+    whole_day_boosts: 'Whole Day Boosts',
+  };
+
+  const categoryKeys = Object.keys(CATEGORY_LABELS) as (keyof CustomCategories)[];
 
   const handleClearData = () => {
     try {
@@ -221,6 +248,55 @@ export function Settings({ onBack }: SettingsProps) {
           </div>
         </section>
 
+        {/* Custom Categories */}
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold mb-4 text-text-primary">
+            Custom Categories
+          </h2>
+
+          <div
+            className="p-6 rounded-lg bg-bg-secondary space-y-4"
+            style={{ borderLeft: '2px solid var(--accent)' }}
+          >
+            {categoryKeys.map((key) => {
+              const items = customCategories[key] || [];
+              return (
+                <div key={key}>
+                  <h4 className="text-sm font-medium text-text-secondary mb-2">
+                    {CATEGORY_LABELS[key]} ({items.length})
+                  </h4>
+                  {items.length === 0 ? (
+                    <p className="text-sm italic text-text-tertiary">
+                      No custom categories yet. Add them while logging.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {items.map((item) => (
+                        <span
+                          key={item}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-bg-tertiary text-text-primary"
+                        >
+                          {item}
+                          <button
+                            type="button"
+                            onClick={() => setPendingRemoval({ key, value: item })}
+                            className="ml-1 text-text-tertiary hover:text-error transition-colors"
+                            title={`Remove "${item}"`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Danger Zone */}
         <section>
           <h2 className="text-lg font-semibold mb-4 text-text-primary">
@@ -316,6 +392,35 @@ export function Settings({ onBack }: SettingsProps) {
                 <button
                   type="button"
                   onClick={() => setShowClearConfirm(false)}
+                  className="flex-1 px-4 py-2 rounded-lg font-medium bg-bg-tertiary text-text-primary hover:brightness-95"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Remove Category Confirmation Modal */}
+        {pendingRemoval && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="rounded-lg p-6 max-w-md w-full bg-bg-primary">
+              <h3 className="text-lg font-semibold mb-4 text-text-primary">
+                Remove Category?
+              </h3>
+              <p className="mb-6 text-text-secondary">
+                Remove &ldquo;{pendingRemoval.value}&rdquo; from {CATEGORY_LABELS[pendingRemoval.key].toLowerCase()}? It will no longer appear as a checkbox option.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleRemoveCategory}
+                  className="flex-1 px-4 py-2 rounded-lg font-medium text-white bg-error hover:brightness-90"
+                >
+                  Remove
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingRemoval(null)}
                   className="flex-1 px-4 py-2 rounded-lg font-medium bg-bg-tertiary text-text-primary hover:brightness-95"
                 >
                   Cancel
