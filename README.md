@@ -72,7 +72,7 @@ localStorage data is per-origin. Export before clearing browser data.
 
 ## Development Notes
 
-Built from comprehensive specs before coding. UX improvements came from actual usage: battery slider for faster mobile input, calendar highlighting to see logging patterns, timezone-safe date handling, "boosts" instead of "restorers" (less clunky).
+Built from comprehensive specs before coding. UX improvements came from actual usage: battery slider for faster mobile input, calendar highlighting to see logging patterns, and timezone-safe date handling.
 
 ## Known Limitations
 
