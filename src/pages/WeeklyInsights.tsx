@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { WeeklySummary } from '@/components/WeeklySummary';
 import { InsightCards } from '@/components/InsightCard';
 import {
@@ -14,6 +14,8 @@ import {
   generateAllExperiments,
   AllExperiments,
 } from '@/utils/experimentGeneration';
+import { getEntries } from '@/utils/storage';
+import { analyzeTimeCorrelations, ActivityTimeCorrelation } from '@/utils/timeCorrelationAnalysis';
 
 interface WeeklyInsightsProps {
   onBack: () => void;
@@ -49,6 +51,29 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
     status: 'loading',
   });
   const [weekView, setWeekView] = useState<WeekView>('current');
+
+  const timeCorrelations = useMemo(() => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const allEntries = getEntries();
+    const recentEntries = Object.values(allEntries).filter(entry => {
+      const entryDate = new Date(entry.date);
+      return entryDate >= thirtyDaysAgo;
+    });
+
+    return analyzeTimeCorrelations(recentEntries);
+  }, [analysisState]);
+
+  // Debug logging for time correlations
+  useEffect(() => {
+    if (timeCorrelations.length > 0) {
+      console.log('Time Correlations Found:', timeCorrelations);
+      console.log('Sample correlation:', timeCorrelations[0]);
+    } else {
+      console.log('No significant time correlations detected');
+    }
+  }, [timeCorrelations]);
 
   useEffect(() => {
     runAnalysis();
@@ -254,6 +279,32 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
                       : undefined
                   }
                 />
+
+                {/* Time-of-Day Correlation Insights */}
+                <section className="mt-8">
+                  <h3 className="text-lg font-semibold mb-4 text-text-primary">
+                    Time-of-Day Insights
+                  </h3>
+
+                  {timeCorrelations.length === 0 && (
+                    <p className="text-sm italic text-text-tertiary">
+                      No significant time-of-day patterns detected yet. Keep logging to see which
+                      times work best for different activities.
+                    </p>
+                  )}
+
+                  {timeCorrelations.length > 0 && (
+                    <>
+                      <p className="text-sm mb-4 text-text-secondary">
+                        These activities affect your energy differently depending on when they occur.
+                      </p>
+
+                      {timeCorrelations.slice(0, 3).map(correlation => (
+                        <TimeCorrelationCard key={correlation.activity} correlation={correlation} />
+                      ))}
+                    </>
+                  )}
+                </section>
               </>
             )}
 
@@ -285,6 +336,108 @@ export function WeeklyInsights({ onBack }: WeeklyInsightsProps) {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function TimeCorrelationCard({ correlation }: { correlation: ActivityTimeCorrelation }) {
+  const [showDetails, setShowDetails] = useState(false);
+
+  return (
+    <div
+      className="mb-3 p-3 rounded-lg"
+      style={{
+        background: 'var(--bg-secondary)',
+        borderLeft: `3px solid var(--${correlation.type === 'drain' ? 'error' : 'success'})`,
+      }}
+    >
+      {/* Compact header with just the recommendation */}
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm flex-1" style={{ color: 'var(--text-primary)' }}>
+          {correlation.recommendation}
+        </p>
+
+        <button
+          type="button"
+          onClick={() => setShowDetails(!showDetails)}
+          className="text-xs shrink-0 px-2 py-1 rounded"
+          style={{
+            color: 'var(--accent)',
+            background: 'var(--bg-primary)',
+            border: '1px solid var(--accent-light)',
+          }}
+        >
+          {showDetails ? 'Hide' : 'Details'}
+        </button>
+      </div>
+
+      {/* Expandable details section */}
+      {showDetails && (
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--accent-light)' }}>
+          <div className="grid grid-cols-3 gap-3 text-xs mb-2">
+            <TimeBlockDetail
+              label="Morning"
+              stats={correlation.morning}
+              isBest={correlation.bestTime === 'morning'}
+              isWorst={correlation.worstTime === 'morning'}
+            />
+            <TimeBlockDetail
+              label="Afternoon"
+              stats={correlation.afternoon}
+              isBest={correlation.bestTime === 'afternoon'}
+              isWorst={correlation.worstTime === 'afternoon'}
+            />
+            <TimeBlockDetail
+              label="Evening"
+              stats={correlation.evening}
+              isBest={correlation.bestTime === 'evening'}
+              isWorst={correlation.worstTime === 'evening'}
+            />
+          </div>
+
+          {correlation.energyDifference && (
+            <div
+              className="text-xs font-medium mt-2 pt-2"
+              style={{
+                color: 'var(--text-tertiary)',
+                borderTop: '1px solid var(--accent-light)',
+              }}
+            >
+              Impact: {correlation.energyDifference.toFixed(1)} point difference between best and worst times
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TimeBlockDetail({ label, stats, isBest, isWorst }: {
+  label: string;
+  stats: { count: number; avgEnergy: number };
+  isBest: boolean;
+  isWorst: boolean;
+}) {
+  return (
+    <div>
+      <div className="mb-1 font-medium" style={{ color: 'var(--text-tertiary)' }}>
+        {label} {isWorst && '\u26A0\uFE0F'}{isBest && '\u2713'}
+      </div>
+      <div
+        className="font-semibold"
+        style={{
+          color: isWorst
+            ? 'var(--error)'
+            : isBest
+            ? 'var(--success)'
+            : 'var(--text-primary)',
+        }}
+      >
+        {stats.avgEnergy.toFixed(1)}
+      </div>
+      <div style={{ color: 'var(--text-tertiary)' }}>
+        {stats.count} {stats.count === 1 ? 'time' : 'times'}
       </div>
     </div>
   );
